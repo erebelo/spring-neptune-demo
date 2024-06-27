@@ -1,0 +1,326 @@
+{
+	"info": {
+		"_postman_id": "abe1950f-8238-4471-bfa9-19c15718d6f8",
+		"name": "Spring Neptune Demo",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3559566"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "GET Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/spring-neptune-demo/health-check",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"spring-neptune-demo",
+								"health-check"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "GET All Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/spring-neptune-demo/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"spring-neptune-demo",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET User by Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/spring-neptune-demo/users/{{user_id_1}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"spring-neptune-demo",
+								"users",
+								"{{user_id_1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST User 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"if (jsonData !== null) {\r",
+									"    var id = jsonData.id;\r",
+									"    if (id) {\r",
+									"        pm.environment.set(\"user_id_1\", id);\r",
+									"    } else {\r",
+									"        console.log(\"No id retrieved\");\r",
+									"    }\r",
+									"} else {\r",
+									"    console.log(\"Response body is empty\");\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"@eduardo\",\r\n    \"name\": \"Eduardo\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/spring-neptune-demo/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"spring-neptune-demo",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST User 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"if (jsonData !== null) {\r",
+									"    var id = jsonData.id;\r",
+									"    if (id) {\r",
+									"        pm.environment.set(\"user_id_2\", id);\r",
+									"    } else {\r",
+									"        console.log(\"No id retrieved\");\r",
+									"    }\r",
+									"} else {\r",
+									"    console.log(\"Response body is empty\");\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"@joseph\",\r\n    \"name\": \"Joseph\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/spring-neptune-demo/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"spring-neptune-demo",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PUT User by Id",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"@john\",\r\n    \"name\": \"John\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/spring-neptune-demo/users/{{user_id_1}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"spring-neptune-demo",
+								"users",
+								"{{user_id_1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE User by Id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/spring-neptune-demo/users/{{user_id_1}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"spring-neptune-demo",
+								"users",
+								"{{user_id_1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST Follow User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/spring-neptune-demo/users/{{user_id_1}}/follow/{{user_id_2}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"spring-neptune-demo",
+								"users",
+								"{{user_id_1}}",
+								"follow",
+								"{{user_id_2}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST Follow User 2",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/spring-neptune-demo/users/{{user_id_2}}/follow/{{user_id_1}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"spring-neptune-demo",
+								"users",
+								"{{user_id_2}}",
+								"follow",
+								"{{user_id_1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Unfollow User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/spring-neptune-demo/users/{{user_id_1}}/unfollow/{{user_id_2}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"spring-neptune-demo",
+								"users",
+								"{{user_id_1}}",
+								"unfollow",
+								"{{user_id_2}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Unfollow User 2",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/spring-neptune-demo/users/{{user_id_2}}/unfollow/{{user_id_1}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"spring-neptune-demo",
+								"users",
+								"{{user_id_2}}",
+								"unfollow",
+								"{{user_id_1}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
