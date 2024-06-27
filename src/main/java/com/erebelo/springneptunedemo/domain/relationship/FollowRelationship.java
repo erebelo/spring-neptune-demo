@@ -14,15 +14,10 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-//@RelationshipProperties
 public class FollowRelationship {
 
-//    @RelationshipId
-    private Long id;
-
-//    @TargetNode
+    private String id;
     private UserNode user;
-
     private LocalDateTime sinceAt;
 
 }

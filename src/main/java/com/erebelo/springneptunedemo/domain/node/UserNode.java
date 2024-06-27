@@ -15,20 +15,12 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-//@Node("User")
 public class UserNode {
 
-//    @Id
-//    @GeneratedValue(UUIDStringGenerator.class)
     private String id;
-
     private String username;
     private String name;
-
-//    @Relationship(type = "FOLLOW", direction = OUTGOING)
     private Set<FollowRelationship> following = new HashSet<>();
-
-//    @Relationship(type = "FOLLOW", direction = INCOMING)
     private Set<FollowRelationship> followers = new HashSet<>();
 
 }

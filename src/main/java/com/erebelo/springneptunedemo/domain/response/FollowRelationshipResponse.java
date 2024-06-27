@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FollowRelationshipResponse {
 
-    private Long id;
+    private String id;
     private UserLazyResponse user;
     private LocalDateTime sinceAt;
 
