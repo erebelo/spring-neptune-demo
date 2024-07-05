@@ -8,16 +8,22 @@ import org.apache.tinkerpop.gremlin.driver.remote.DriverRemoteConnection;
 import org.apache.tinkerpop.gremlin.process.remote.RemoteConnection;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.strategy.decoration.PartitionStrategy;
+import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 import static org.apache.tinkerpop.gremlin.process.traversal.AnonymousTraversalSource.traversal;
 
 @Configuration
-@Profile("!local")
+//@Profile("!local")
 public class NeptuneConfiguration {
+
+    @Value("${aws.region}")
+    private String region;
+
+    @Value("${aws.neptune.embedded}")
+    private boolean useEmbedded;
 
     @Value("${aws.neptune.endpoint}")
     private String endpoint;
@@ -27,9 +33,6 @@ public class NeptuneConfiguration {
 
     @Value("${aws.neptune.partition.name}")
     private String partitionName;
-
-    @Value("${aws.region}")
-    private String region;
 
     @Bean
     public Cluster cluster() {
@@ -68,6 +71,10 @@ public class NeptuneConfiguration {
 
     @Bean
     public GraphTraversalSource graphTraversalSource(RemoteConnection remoteConnection, PartitionStrategy partitionStrategy) {
+        if (useEmbedded) {
+            return traversal().withEmbedded(TinkerGraph.open()).withStrategies(partitionStrategy());
+        }
+
         return traversal().withRemote(remoteConnection).withStrategies(partitionStrategy);
     }
 }

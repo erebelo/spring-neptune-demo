@@ -28,7 +28,7 @@ public class UserRepositoryImpl implements UserRepository {
     private final ObjectMapper objectMapper;
 
     private static final String USER_VERTEX_LABEL = "User";
-    private static final String FOLLOWS_EDGE_LABEL = "FOLLOWS";
+    private static final String FOLLOW_EDGE_LABEL = "FOLLOW";
     private static final String FOLLOWED_BY_EDGE_LABEL = "FOLLOWED_BY";
     private static final String ID_PROPERTY = "id";
     private static final String SINCE_AT_PROPERTY = "sinceAt";
@@ -75,8 +75,8 @@ public class UserRepositoryImpl implements UserRepository {
 
         if (vertex1 != null && vertex2 != null) {
             var localDate = LocalDateTime.now();
-            if (!relationshipExists(vertex1, vertex2, FOLLOWS_EDGE_LABEL)) {
-                createRelationship(vertex1, vertex2, FOLLOWS_EDGE_LABEL, localDate);
+            if (!relationshipExists(vertex1, vertex2, FOLLOW_EDGE_LABEL)) {
+                createRelationship(vertex1, vertex2, FOLLOW_EDGE_LABEL, localDate);
             }
             if (!relationshipExists(vertex2, vertex1, FOLLOWED_BY_EDGE_LABEL)) {
                 createRelationship(vertex2, vertex1, FOLLOWED_BY_EDGE_LABEL, localDate);
@@ -92,8 +92,8 @@ public class UserRepositoryImpl implements UserRepository {
         var vertex2 = traversalSource.V().hasLabel(USER_VERTEX_LABEL).has(ID_PROPERTY, id2).tryNext().orElse(null);
 
         if (vertex1 != null && vertex2 != null) {
-            if (relationshipExists(vertex1, vertex2, FOLLOWS_EDGE_LABEL)) {
-                removeRelationship(vertex1, vertex2, FOLLOWS_EDGE_LABEL);
+            if (relationshipExists(vertex1, vertex2, FOLLOW_EDGE_LABEL)) {
+                removeRelationship(vertex1, vertex2, FOLLOW_EDGE_LABEL);
             }
             if (relationshipExists(vertex2, vertex1, FOLLOWED_BY_EDGE_LABEL)) {
                 removeRelationship(vertex2, vertex1, FOLLOWED_BY_EDGE_LABEL);
@@ -154,7 +154,7 @@ public class UserRepositoryImpl implements UserRepository {
     private UserNode mapVertexToUserNode(Vertex userVertex) {
         // Use ObjectMapper to convert Map<String, Object> to UserNode
         var userNode = lazyMapVertexToUserNode(userVertex);
-        userNode.setFollowing(mapFollowRelationships(userVertex, FOLLOWS_EDGE_LABEL));
+        userNode.setFollowing(mapFollowRelationships(userVertex, FOLLOW_EDGE_LABEL));
         userNode.setFollowers(mapFollowRelationships(userVertex, FOLLOWED_BY_EDGE_LABEL));
 
         return userNode;
