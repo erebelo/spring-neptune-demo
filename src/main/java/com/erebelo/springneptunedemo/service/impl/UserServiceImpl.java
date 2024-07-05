@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse findById(String id) {
-        var node = repository.findById(id).orElse(null);
+        var node = repository.findById(id);
         return mapper.nodeToResponse(node);
     }
 
@@ -41,8 +41,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserLazyResponse update(String id, UserRequest request) {
         var node = mapper.requestToNode(request);
-        node.setId(id);
-        node = repository.update(node);
+        node = repository.update(id, node);
 
         return mapper.lazyNodeToResponse(node);
     }

@@ -1,6 +1,7 @@
 package com.erebelo.springneptunedemo.domain.node;
 
 import com.erebelo.springneptunedemo.domain.relationship.FollowRelationship;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,6 +16,7 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserNode {
 
     private String id;

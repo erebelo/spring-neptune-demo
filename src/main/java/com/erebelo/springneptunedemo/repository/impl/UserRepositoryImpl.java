@@ -5,9 +5,12 @@ import com.erebelo.springneptunedemo.domain.relationship.FollowRelationship;
 import com.erebelo.springneptunedemo.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Direction;
+import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.springframework.stereotype.Repository;
 
@@ -16,10 +19,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.erebelo.springneptunedemo.util.GraphUtil.mapVertexToNode;
+import static com.erebelo.springneptunedemo.util.GraphUtil.updateVertexProperties;
+
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepository {
@@ -35,37 +41,74 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<UserNode> findAll() {
-        return traversalSource.V().hasLabel(USER_VERTEX_LABEL)
-                .toList()
-                .stream()
-                .map(this::mapVertexToUserNode)
+        List<Map<Object, Object>> vertices = traversalSource.V()
+                .hasLabel(USER_VERTEX_LABEL)
+                .elementMap()
+                .toList();
+
+        if (vertices.isEmpty()) {
+            log.info("No users found");
+            throw new IllegalArgumentException("No users found");
+        }
+
+        return vertices.stream()
+                .map(v -> mapVertexToNode(v, UserNode.class))
                 .toList();
     }
 
     @Override
-    public Optional<UserNode> findById(String id) {
-        var vertex = traversalSource.V().hasLabel(USER_VERTEX_LABEL).has(ID_PROPERTY, id).tryNext().orElse(null);
-        return Optional.ofNullable(vertex).map(this::mapVertexToUserNode);
+    public UserNode findById(String id) {
+        Map<Object, Object> vertex = traversalSource.V()
+                .hasLabel(USER_VERTEX_LABEL)
+                .elementMap()
+                .toStream()
+                .filter(v -> id.equalsIgnoreCase(v.get(T.id).toString()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("User not found by id: " + id));
+
+        return mapVertexToNode(vertex, UserNode.class);
     }
 
     @Override
-    public UserNode insert(UserNode user) {
-        try {
-            var vertex = traversalSource.addV(USER_VERTEX_LABEL).property(ID_PROPERTY, UUID.randomUUID().toString()).next();
-            return updateVertexProperties(vertex, user);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Failed to insert user", e);
-        }
+    public UserNode insert(UserNode node) {
+        GraphTraversal<Vertex, Vertex> gtVertex = traversalSource.addV(USER_VERTEX_LABEL);
+        updateVertexProperties(gtVertex, node);
+
+        GraphTraversal<Vertex, Map<Object, Object>> vertex = gtVertex.elementMap();
+        return mapVertexToNode(vertex.next(), UserNode.class);
     }
 
     @Override
-    public UserNode update(UserNode user) {
-        var vertex = traversalSource.V().hasLabel(USER_VERTEX_LABEL).has(ID_PROPERTY, user.getId()).tryNext().orElse(null);
-        if (vertex != null) {
-            return updateVertexProperties(vertex, user);
-        } else {
-            throw new IllegalArgumentException("User with id " + user.getId() + " not found.");
-        }
+    public UserNode update(String id, UserNode node) {
+        GraphTraversal<Vertex, Vertex> gtVertex = traversalSource.V()
+                .hasLabel(USER_VERTEX_LABEL)
+                .elementMap()
+                .toStream()
+                .filter(v -> id.equalsIgnoreCase(v.get(T.id).toString()))
+                .map(v -> traversalSource.V(v.get(T.id)))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("User not found by id: " + id));
+        updateVertexProperties(gtVertex, node);
+
+        GraphTraversal<Vertex, Map<Object, Object>> vertex = gtVertex.elementMap();
+        return mapVertexToNode(vertex.next(), UserNode.class);
+    }
+
+    @Override
+    public void deleteById(String id) {
+        traversalSource.V()
+                .hasLabel(USER_VERTEX_LABEL)
+                .elementMap()
+                .toStream()
+                .filter(v -> id.equalsIgnoreCase(v.get(T.id).toString()))
+                .findFirst()
+                .ifPresentOrElse(vertex -> {
+                            // Delete the vertex and its relationships
+                            traversalSource.V(vertex.get(T.id)).drop().iterate();
+                        }, () -> {
+                            throw new IllegalArgumentException("User not found by id: " + id);
+                        }
+                );
     }
 
     @Override
@@ -100,30 +143,6 @@ public class UserRepositoryImpl implements UserRepository {
             }
         } else {
             throw new IllegalArgumentException("User not found");
-        }
-    }
-
-    @Override
-    public void deleteById(String id) {
-        // Delete user vertex and associated relationships
-        traversalSource.V().hasLabel(USER_VERTEX_LABEL).has(ID_PROPERTY, id).drop().iterate();
-    }
-
-    private UserNode updateVertexProperties(Vertex vertex, UserNode user) {
-        try {
-            // Convert UserNode to Map<String, Object>
-            Map<String, Object> properties = objectMapper.convertValue(user, Map.class);
-
-            // Iterate through the map and update vertex properties
-            for (Map.Entry<String, Object> entry : properties.entrySet()) {
-                if (entry.getValue() != null) {
-                    vertex.property(entry.getKey(), entry.getValue().toString());
-                }
-            }
-
-            return mapVertexToUserNode(vertex);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Failed to update user properties", e);
         }
     }
 
