@@ -16,7 +16,6 @@ import org.springframework.context.annotation.Configuration;
 import static org.apache.tinkerpop.gremlin.process.traversal.AnonymousTraversalSource.traversal;
 
 @Configuration
-//@Profile("!local")
 public class NeptuneConfiguration {
 
     @Value("${aws.region}")
@@ -42,8 +41,7 @@ public class NeptuneConfiguration {
                 .maxInProcessPerConnection(1)
                 .maxSimultaneousUsagePerConnection(5)
                 .minSimultaneousUsagePerConnection(1)
-                .handshakeInterceptor(r ->
-                {
+                .handshakeInterceptor(r -> {
                     try {
                         var sigV4Signer = new NeptuneNettyHttpSigV4Signer(region, new DefaultAWSCredentialsProviderChain());
                         sigV4Signer.signRequest(r);
