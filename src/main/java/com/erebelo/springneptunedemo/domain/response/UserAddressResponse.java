@@ -1,4 +1,4 @@
-package com.erebelo.springneptunedemo.domain.request;
+package com.erebelo.springneptunedemo.domain.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -17,10 +17,12 @@ import lombok.ToString;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserRequest {
+public class UserAddressResponse {
 
-    private String username;
-    private String name;
-    private UserAddressRequest address;
+    private String addressLine;
+    private String zipCode;
+    private String city;
+    private String state;
+    private String country;
 
 }

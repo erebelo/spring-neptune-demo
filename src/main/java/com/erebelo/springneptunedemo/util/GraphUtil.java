@@ -14,6 +14,14 @@ import java.util.Map;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class GraphUtil {
 
+    public static void cleanVertexProperties(GraphTraversal<Vertex, Vertex> gtVertex) {
+        gtVertex.properties().forEachRemaining(property -> {
+            if (!property.key().equalsIgnoreCase("env")) {
+                property.remove();
+            }
+        });
+    }
+
     public static <T> void updateVertexProperties(GraphTraversal<Vertex, Vertex> gtVertex, T node) {
         try {
             // Convert Node to Map<String, Object>

@@ -17,10 +17,12 @@ import lombok.ToString;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserRequest {
+public class UserAddressRequest {
 
-    private String username;
-    private String name;
-    private UserAddressRequest address;
+    private String addressLine;
+    private String zipCode;
+    private String city;
+    private String state;
+    private String country;
 
 }

@@ -24,6 +24,7 @@ public class UserResponse {
     private String id;
     private String username;
     private String name;
+    private UserAddressResponse address;
     private List<FollowRelationshipResponse> following;
     private List<FollowRelationshipResponse> followers;
 

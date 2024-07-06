@@ -1,7 +1,6 @@
 package com.erebelo.springneptunedemo.service.impl;
 
 import com.erebelo.springneptunedemo.domain.request.UserRequest;
-import com.erebelo.springneptunedemo.domain.response.UserLazyResponse;
 import com.erebelo.springneptunedemo.domain.response.UserResponse;
 import com.erebelo.springneptunedemo.mapper.UserMapper;
 import com.erebelo.springneptunedemo.repository.UserRepository;
@@ -19,9 +18,9 @@ public class UserServiceImpl implements UserService {
     private final UserMapper mapper;
 
     @Override
-    public List<UserLazyResponse> findAll() {
+    public List<UserResponse> findAll() {
         var nodeList = repository.findAll();
-        return mapper.lazyNodeListToResponseList(nodeList);
+        return mapper.nodeListToResponseList(nodeList);
     }
 
     @Override
@@ -31,19 +30,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserLazyResponse insert(UserRequest request) {
+    public UserResponse insert(UserRequest request) {
         var node = mapper.requestToNode(request);
         node = repository.insert(node);
 
-        return mapper.lazyNodeToResponse(node);
+        return mapper.nodeToResponse(node);
     }
 
     @Override
-    public UserLazyResponse update(String id, UserRequest request) {
+    public UserResponse update(String id, UserRequest request) {
         var node = mapper.requestToNode(request);
         node = repository.update(id, node);
 
-        return mapper.lazyNodeToResponse(node);
+        return mapper.nodeToResponse(node);
     }
 
     @Override

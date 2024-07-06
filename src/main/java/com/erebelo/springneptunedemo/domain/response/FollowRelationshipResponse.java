@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 public class FollowRelationshipResponse {
 
     private String id;
-    private UserLazyResponse user;
+    private UserResponse user;
     private LocalDateTime sinceAt;
 
 }

@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "abe1950f-8238-4471-bfa9-19c15718d6f8",
+		"_postman_id": "f5d10625-cf9f-4cdb-b670-5739c065bbf7",
 		"name": "Spring Neptune Demo",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "3559566"
+		"_exporter_id": "16363964"
 	},
 	"item": [
 		{
@@ -104,7 +104,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"@eduardo\",\r\n    \"name\": \"Eduardo\"\r\n}",
+							"raw": "{\r\n    \"username\": \"@eduardo\",\r\n    \"name\": \"Eduardo\",\r\n    \"address\": {\r\n        \"addressLine\": \"80-2 W 130th St\",\r\n        \"zipCode\": \"10037\",\r\n        \"city\": \"New York\",\r\n        \"state\": \"NY\",\r\n        \"country\": \"US\"\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -155,7 +155,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"@joseph\",\r\n    \"name\": \"Joseph\"\r\n}",
+							"raw": "{\r\n    \"username\": \"@joseph\",\r\n    \"name\": \"Joseph\",\r\n    \"address\": {\r\n        \"addressLine\": \"583 15th Ave\",\r\n        \"zipCode\": \"07103\",\r\n        \"city\": \"Newark\",\r\n        \"state\": \"NJ\",\r\n        \"country\": \"US\"\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"

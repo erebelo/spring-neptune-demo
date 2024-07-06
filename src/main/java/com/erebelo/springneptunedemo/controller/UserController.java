@@ -1,7 +1,6 @@
 package com.erebelo.springneptunedemo.controller;
 
 import com.erebelo.springneptunedemo.domain.request.UserRequest;
-import com.erebelo.springneptunedemo.domain.response.UserLazyResponse;
 import com.erebelo.springneptunedemo.domain.response.UserResponse;
 import com.erebelo.springneptunedemo.service.UserService;
 import jakarta.validation.Valid;
@@ -32,7 +31,7 @@ public class UserController {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<UserLazyResponse>> findAll() {
+    public ResponseEntity<List<UserResponse>> findAll() {
         LOGGER.info("Getting all users");
         return ResponseEntity.ok(service.findAll());
     }
@@ -44,7 +43,7 @@ public class UserController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserLazyResponse> insert(@Valid @RequestBody UserRequest request) {
+    public ResponseEntity<UserResponse> insert(@Valid @RequestBody UserRequest request) {
         LOGGER.info("Inserting user: {}", request);
         var response = service.insert(request);
         var uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.getId()).toUri();
@@ -52,7 +51,7 @@ public class UserController {
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserLazyResponse> update(@PathVariable String id, @Valid @RequestBody UserRequest request) {
+    public ResponseEntity<UserResponse> update(@PathVariable String id, @Valid @RequestBody UserRequest request) {
         LOGGER.info("Updating user by id: {} {}", id, request);
         return ResponseEntity.ok(service.update(id, request));
     }

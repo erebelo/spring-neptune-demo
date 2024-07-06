@@ -22,6 +22,7 @@ public class UserNode {
     private String id;
     private String username;
     private String name;
+    private UserAddress address;
     private Set<FollowRelationship> following = new HashSet<>();
     private Set<FollowRelationship> followers = new HashSet<>();
 

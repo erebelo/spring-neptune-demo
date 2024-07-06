@@ -1,26 +1,26 @@
-package com.erebelo.springneptunedemo.domain.request;
+package com.erebelo.springneptunedemo.domain.relationship;
 
+import com.erebelo.springneptunedemo.domain.node.UserNode;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserRequest {
+public class FollowRelationship2 {
 
-    private String username;
-    private String name;
-    private UserAddressRequest address;
+    private String id;
+    private UserNode in;
+    private UserNode out;
+    private LocalDateTime sinceAt;
 
 }

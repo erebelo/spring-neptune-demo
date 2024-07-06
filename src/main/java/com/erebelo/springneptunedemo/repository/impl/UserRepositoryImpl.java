@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.erebelo.springneptunedemo.util.GraphUtil.cleanVertexProperties;
 import static com.erebelo.springneptunedemo.util.GraphUtil.mapVertexToNode;
 import static com.erebelo.springneptunedemo.util.GraphUtil.updateVertexProperties;
 
@@ -74,24 +75,20 @@ public class UserRepositoryImpl implements UserRepository {
         GraphTraversal<Vertex, Vertex> gtVertex = traversalSource.addV(USER_VERTEX_LABEL);
         updateVertexProperties(gtVertex, node);
 
-        GraphTraversal<Vertex, Map<Object, Object>> vertex = gtVertex.elementMap();
-        return mapVertexToNode(vertex.next(), UserNode.class);
+        GraphTraversal<Vertex, Map<Object, Object>> vertexTraversal = gtVertex.elementMap();
+        return mapVertexToNode(vertexTraversal.next(), UserNode.class);
     }
 
     @Override
     public UserNode update(String id, UserNode node) {
-        GraphTraversal<Vertex, Vertex> gtVertex = traversalSource.V()
-                .hasLabel(USER_VERTEX_LABEL)
-                .elementMap()
-                .toStream()
-                .filter(v -> id.equalsIgnoreCase(v.get(T.id).toString()))
-                .map(v -> traversalSource.V(v.get(T.id)))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("User not found by id: " + id));
+        GraphTraversal<Vertex, Vertex> gtVertex = retrieveGraphTraversalById(id);
+        cleanVertexProperties(gtVertex);
+
+        gtVertex = retrieveGraphTraversalById(id);
         updateVertexProperties(gtVertex, node);
 
-        GraphTraversal<Vertex, Map<Object, Object>> vertex = gtVertex.elementMap();
-        return mapVertexToNode(vertex.next(), UserNode.class);
+        GraphTraversal<Vertex, Map<Object, Object>> vertexTraversal = gtVertex.elementMap();
+        return mapVertexToNode(vertexTraversal.next(), UserNode.class);
     }
 
     @Override
@@ -109,6 +106,17 @@ public class UserRepositoryImpl implements UserRepository {
                             throw new IllegalArgumentException("User not found by id: " + id);
                         }
                 );
+    }
+
+    private GraphTraversal<Vertex, Vertex> retrieveGraphTraversalById(String id) {
+        return traversalSource.V()
+                .hasLabel(USER_VERTEX_LABEL)
+                .elementMap()
+                .toStream()
+                .filter(v -> id.equalsIgnoreCase(v.get(T.id).toString()))
+                .map(v -> traversalSource.V(v.get(T.id)))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("User not found by id: " + id));
     }
 
     @Override
