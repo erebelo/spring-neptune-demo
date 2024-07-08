@@ -1,4 +1,4 @@
-package com.erebelo.springneptunedemo.domain.node;
+package com.erebelo.springneptunedemo.domain.graph.node;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
@@ -13,11 +13,12 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserNode2 {
+public class UserAddress {
 
-    private String id;
-    private String username;
-    private String name;
-    private UserAddress address;
+    private String addressLine;
+    private String zipCode;
+    private String city;
+    private String state;
+    private String country;
 
 }

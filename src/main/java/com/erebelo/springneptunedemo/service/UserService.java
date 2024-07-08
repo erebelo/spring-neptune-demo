@@ -1,6 +1,8 @@
 package com.erebelo.springneptunedemo.service;
 
+import com.erebelo.springneptunedemo.domain.request.FollowRequest;
 import com.erebelo.springneptunedemo.domain.request.UserRequest;
+import com.erebelo.springneptunedemo.domain.response.FollowResponse;
 import com.erebelo.springneptunedemo.domain.response.UserResponse;
 
 import java.util.List;
@@ -17,8 +19,8 @@ public interface UserService {
 
     void delete(String id);
 
-    void followUser(String id1, String id2);
+    FollowResponse follow(String fromId, String toId, FollowRequest request);
 
-    void unfollowUser(String id1, String id2);
+    void unfollow(String fromId, String toId);
 
 }

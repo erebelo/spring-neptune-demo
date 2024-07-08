@@ -1,6 +1,8 @@
 package com.erebelo.springneptunedemo.controller;
 
+import com.erebelo.springneptunedemo.domain.request.FollowRequest;
 import com.erebelo.springneptunedemo.domain.request.UserRequest;
+import com.erebelo.springneptunedemo.domain.response.FollowResponse;
 import com.erebelo.springneptunedemo.domain.response.UserResponse;
 import com.erebelo.springneptunedemo.service.UserService;
 import jakarta.validation.Valid;
@@ -63,17 +65,17 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{id1}/follow/{id2}")
-    public ResponseEntity<Void> followUser(@PathVariable String id1, @PathVariable String id2) {
-        LOGGER.info("User id: {} following the user id: {}", id1, id2);
-        service.followUser(id1, id2);
-        return ResponseEntity.noContent().build();
+    @PostMapping("/{fromId}/follow/{toId}")
+    public ResponseEntity<FollowResponse> follow(@PathVariable String fromId, @PathVariable String toId,
+            @Valid @RequestBody FollowRequest request) {
+        LOGGER.info("Creating FOLLOW relationship from user id: {} to user id: {} by object: {}", fromId, toId, request);
+        return ResponseEntity.ok(service.follow(fromId, toId, request));
     }
 
-    @DeleteMapping("/{id1}/unfollow/{id2}")
-    public ResponseEntity<Void> unfollowUser(@PathVariable String id1, @PathVariable String id2) {
-        LOGGER.info("User id: {} unfollowing the user id: {}", id1, id2);
-        service.unfollowUser(id1, id2);
+    @DeleteMapping("/{fromId}/unfollow/{toId}")
+    public ResponseEntity<Void> unfollow(@PathVariable String fromId, @PathVariable String toId) {
+        LOGGER.info("User id: {} unfollowing user id: {}", fromId, toId);
+        service.unfollow(fromId, toId);
         return ResponseEntity.noContent().build();
     }
 }

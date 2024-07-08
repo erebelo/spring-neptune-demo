@@ -1,4 +1,4 @@
-package com.erebelo.springneptunedemo.domain.response;
+package com.erebelo.springneptunedemo.domain.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -19,10 +19,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class FollowRelationshipResponse {
+public class FollowRequest {
 
-    private String id;
-    private UserResponse user;
-    private LocalDateTime sinceAt;
+    private String status;
+    private LocalDate startPeriod;
+    private LocalDate endPeriod;
 
 }

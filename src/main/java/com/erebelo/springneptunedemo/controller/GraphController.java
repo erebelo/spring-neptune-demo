@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Profile("local")
@@ -24,25 +25,28 @@ public class GraphController {
         Map<String, Object> graphData = new HashMap<>();
 
         // Collect vertices
-        Map<Object, Map<String, Object>> nodes = new HashMap<>();
+        Map<Object, Map<String, Object>> vertices = new HashMap<>();
         g.V().forEachRemaining(v -> {
-            Map<String, Object> properties = new HashMap<>();
+            Map<String, Object> properties = new LinkedHashMap<>();
+            properties.put("label", v.label());
             v.properties().forEachRemaining(p -> properties.put(p.key(), p.value()));
-            nodes.put(v.id(), properties);
+
+            vertices.put(v.id(), properties);
         });
 
         // Collect edges
         Map<Object, Map<String, Object>> edges = new HashMap<>();
         g.E().forEachRemaining(e -> {
-            Map<String, Object> edgeData = new HashMap<>();
-            edgeData.put("id", e.id());
-            edgeData.put("source", e.outVertex().id());
-            edgeData.put("target", e.inVertex().id());
-            edgeData.put("label", e.label());
-            edges.put(e.id(), edgeData);
+            Map<String, Object> properties = new LinkedHashMap<>();
+            properties.put("label", e.label());
+            properties.put("source", e.outVertex().id());
+            properties.put("target", e.inVertex().id());
+            e.properties().forEachRemaining(p -> properties.put(p.key(), p.value()));
+
+            edges.put(e.id(), properties);
         });
 
-        graphData.put("nodes", nodes);
+        graphData.put("vertices", vertices);
         graphData.put("edges", edges);
 
         return graphData;

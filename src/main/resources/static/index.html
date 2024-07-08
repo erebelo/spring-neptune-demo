@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Graph Visualization with Cytoscape.js</title>
-    <script src="cytoscape.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.20.1/cytoscape.min.js"></script>
     <style>
         #cy {
             width: 100%;
@@ -21,56 +21,33 @@
         .then(data => {
             console.log('Fetched Data:', data);
 
-            // Extract nodes
-            const nodes = Object.keys(data.nodes).map(nodeId => ({
+            // Extract vertices
+            const vertices = Object.keys(data.vertices).map(vertexId => ({
                 data: {
-                    id: nodeId,
-                    name: data.nodes[nodeId].name
+                    id: vertexId,
+                    label: data.vertices[vertexId].label,
+                    name: data.vertices[vertexId].name
                 }
             }));
 
-            // Extract edges and handle bidirectional relationships
-            const edges = [];
-            const processedEdges = new Set(); // To track processed edges
-
-            Object.keys(data.edges).forEach(edgeId => {
-                const edge = data.edges[edgeId];
-                const source = edge.source.toString();
-                const target = edge.target.toString();
-                const label = edge.label.toString();
-                const reverseLabel = `REVERSED_${label}`;
-
-                // Check if the reverse edge exists and if it's already processed
-                if (label === 'FOLLOW' && !processedEdges.has(edgeId)) {
-                    const reverseExists = Object.keys(data.edges).some(eId =>
-                        data.edges[eId].source === target &&
-                        data.edges[eId].target === source &&
-                        data.edges[eId].label === reverseLabel
-                    );
-
-                    // Add the edge if it's not FOLLOWED_BY and if it's not a duplicate
-                    if (!reverseExists) {
-                        edges.push({
-                            data: {
-                                id: `${edge.id}`,
-                                source: source,
-                                target: target,
-                                label: label
-                            }
-                        });
-                        processedEdges.add(edgeId);
-                    }
+            // Extract edges
+            const edges = Object.keys(data.edges).map(edgeId => ({
+                data: {
+                    id: edgeId,
+                    source: data.edges[edgeId].source,
+                    target: data.edges[edgeId].target,
+                    label: data.edges[edgeId].label
                 }
-            });
+            }));
 
-            console.log('Nodes:', nodes);
+            console.log('Vertices:', vertices);
             console.log('Edges:', edges);
 
             // Initialize Cytoscape
             const cy = cytoscape({
                 container: document.getElementById('cy'),
                 elements: {
-                    nodes: nodes,
+                    nodes: vertices,
                     edges: edges
                 },
                 style: [

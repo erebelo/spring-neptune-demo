@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
-import org.apache.tinkerpop.gremlin.structure.Vertex;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,48 +13,48 @@ import java.util.Map;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class GraphUtil {
 
-    public static void cleanVertexProperties(GraphTraversal<Vertex, Vertex> gtVertex) {
-        gtVertex.properties().forEachRemaining(property -> {
+    public static void cleanVertexAndEdgeProperties(GraphTraversal<?, ?> gtObject) {
+        gtObject.properties().forEachRemaining(property -> {
             if (!property.key().equalsIgnoreCase("env")) {
                 property.remove();
             }
         });
     }
 
-    public static <T> void updateVertexProperties(GraphTraversal<Vertex, Vertex> gtVertex, T node) {
+    public static <T> void updateVertexAndEdgeProperties(GraphTraversal<?, ?> gtObject, T node) {
         try {
             // Convert Node to Map<String, Object>
             Map<String, Object> properties = ObjectMapperUtil.objectMapper.convertValue(node, Map.class);
 
-            // Iterate through the Map and update Vertex properties
+            // Iterate through the Map and update Vertex/Edge properties
             for (Map.Entry<String, Object> entry : properties.entrySet()) {
                 if (entry.getValue() != null) {
                     if (entry.getValue() instanceof Map) {
-                        // Flatten nested Object Map into Vertex properties
-                        flattenNestedProperties(gtVertex, entry.getKey(), (Map<String, Object>) entry.getValue());
+                        // Flatten nested Object Map into Vertex/Edge properties
+                        flattenNestedProperties(gtObject, entry.getKey(), (Map<String, Object>) entry.getValue());
                     } else {
-                        gtVertex.property(entry.getKey(), entry.getValue().toString());
+                        gtObject.property(entry.getKey(), entry.getValue().toString());
                     }
                 }
             }
         } catch (Exception e) {
-            log.error("Error updating vertex properties", e);
-            throw new IllegalArgumentException("Error updating vertex properties: " + e.getMessage(), e);
+            log.error("Error updating vertex/edge properties", e);
+            throw new IllegalArgumentException("Error updating vertex/edge properties: " + e.getMessage(), e);
         }
     }
 
-    private static void flattenNestedProperties(GraphTraversal<Vertex, Vertex> gtVertex, String prefix,
+    private static void flattenNestedProperties(GraphTraversal<?, ?> gtObject, String prefix,
             Map<String, Object> nestedProperties) {
         for (Map.Entry<String, Object> entry : nestedProperties.entrySet()) {
             String key = prefix + "_" + entry.getKey();
             Object value = entry.getValue();
             if (value != null) {
-                gtVertex.property(key, value.toString());
+                gtObject.property(key, value.toString());
             }
         }
     }
 
-    public static <T> T mapVertexToNode(Map<Object, Object> propertiesMap, Class<T> clazz) {
+    public static <T> T mapVertexAndEdgeToNode(Map<Object, Object> propertiesMap, Class<T> clazz) {
         try {
             // Parse properties dynamically and generically
             Map<String, Object> parsedProperties = parseProperties(propertiesMap);
@@ -63,8 +62,9 @@ public final class GraphUtil {
             // Use ObjectMapper to convert parsed properties to the target class
             return ObjectMapperUtil.objectMapper.convertValue(parsedProperties, clazz);
         } catch (Exception e) {
-            log.error("Unexpected error while mapping vertex properties to node object", e);
-            throw new IllegalArgumentException("Unexpected error while mapping vertex properties to node object: " + e.getMessage(), e);
+            log.error("Unexpected error while mapping vertex/edge properties to node object", e);
+            throw new IllegalArgumentException("Unexpected error while mapping vertex/edge properties to node object: " + e.getMessage(),
+                    e);
         }
     }
 

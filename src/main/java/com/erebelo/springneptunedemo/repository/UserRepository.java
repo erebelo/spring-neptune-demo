@@ -1,6 +1,7 @@
 package com.erebelo.springneptunedemo.repository;
 
-import com.erebelo.springneptunedemo.domain.node.UserNode;
+import com.erebelo.springneptunedemo.domain.graph.node.UserNode;
+import com.erebelo.springneptunedemo.domain.graph.relationship.FollowRelationship;
 
 import java.util.List;
 
@@ -10,14 +11,14 @@ public interface UserRepository {
 
     UserNode findById(String id);
 
-    UserNode insert(UserNode user);
+    UserNode insert(UserNode node);
 
-    UserNode update(String id, UserNode user);
-
-    void saveRelationships(String id1, String id2);
-
-    void removeRelationship(String id1, String id2);
+    UserNode update(String id, UserNode node);
 
     void deleteById(String id);
+
+    FollowRelationship createRelationship(String fromId, String toId, FollowRelationship relationship);
+
+    void removeRelationship(String fromId, String toId);
 
 }

@@ -1,11 +1,10 @@
 package com.erebelo.springneptunedemo.mapper;
 
-import com.erebelo.springneptunedemo.domain.node.UserAddress;
-import com.erebelo.springneptunedemo.domain.node.UserNode;
-import com.erebelo.springneptunedemo.domain.relationship.FollowRelationship;
+import com.erebelo.springneptunedemo.domain.graph.node.UserNode;
+import com.erebelo.springneptunedemo.domain.graph.relationship.FollowRelationship;
+import com.erebelo.springneptunedemo.domain.request.FollowRequest;
 import com.erebelo.springneptunedemo.domain.request.UserRequest;
-import com.erebelo.springneptunedemo.domain.response.FollowRelationshipResponse;
-import com.erebelo.springneptunedemo.domain.response.UserAddressResponse;
+import com.erebelo.springneptunedemo.domain.response.FollowResponse;
 import com.erebelo.springneptunedemo.domain.response.UserResponse;
 import org.mapstruct.Mapper;
 
@@ -20,10 +19,10 @@ public interface UserMapper {
 
     UserResponse nodeToResponse(UserNode node);
 
-    UserAddressResponse addressToResponse(UserAddress address);
-
-    FollowRelationshipResponse mapFollowRelationshipToFollowRelationshipResponse(FollowRelationship relationship);
-
     UserNode requestToNode(UserRequest request);
+
+    FollowRelationship requestToRelationship(FollowRequest request);
+
+    FollowResponse relationshipToResponse(FollowRelationship relationship);
 
 }
