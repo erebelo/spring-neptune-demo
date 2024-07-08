@@ -104,7 +104,16 @@ public class UserRepositoryImpl implements UserRepository {
             updateVertexAndEdgeProperties(gtEdge, relationship);
 
             GraphTraversal<Edge, Map<Object, Object>> edgeTraversal = gtEdge.elementMap();
-            return mapVertexAndEdgeToNode(edgeTraversal.next(), FollowRelationship.class);
+            FollowRelationship followRelationship = mapVertexAndEdgeToNode(edgeTraversal.next(), FollowRelationship.class);
+
+            // Mapping edge vertices
+            if (followRelationship.getIn() != null) {
+                followRelationship.setIn(findById(followRelationship.getIn().getId()));
+            }
+            if (followRelationship.getOut() != null) {
+                followRelationship.setOut(findById(followRelationship.getOut().getId()));
+            }
+            return followRelationship;
         }
 
         return null;

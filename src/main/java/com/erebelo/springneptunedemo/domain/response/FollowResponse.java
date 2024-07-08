@@ -25,7 +25,7 @@ public class FollowResponse {
     private String status;
     private LocalDate startPeriod;
     private LocalDate endPeriod;
-    private LazyUserResponse from;
-    private LazyUserResponse to;
+    private LazyUserResponse in;
+    private LazyUserResponse out;
 
 }

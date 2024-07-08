@@ -3,7 +3,9 @@ package com.erebelo.springneptunedemo.util;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
+import org.apache.tinkerpop.gremlin.structure.T;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,6 +14,9 @@ import java.util.Map;
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class GraphUtil {
+
+    private static final String IN_EDGE_LABEL = "IN";
+    private static final String OUT_EDGE_LABEL = "OUT";
 
     public static void cleanVertexAndEdgeProperties(GraphTraversal<?, ?> gtObject) {
         gtObject.properties().forEachRemaining(property -> {
@@ -56,10 +61,14 @@ public final class GraphUtil {
 
     public static <T> T mapVertexAndEdgeToNode(Map<Object, Object> propertiesMap, Class<T> clazz) {
         try {
-            // Parse properties dynamically and generically
-            Map<String, Object> parsedProperties = parseProperties(propertiesMap);
+            // Parse vertex properties dynamically and generically
+            Map<String, Object> parsedProperties = parseVertexProperties(propertiesMap);
 
-            // Use ObjectMapper to convert parsed properties to the target class
+            // Parse edge properties dynamically and generically
+            parseEdgeProperties(parsedProperties, IN_EDGE_LABEL);
+            parseEdgeProperties(parsedProperties, OUT_EDGE_LABEL);
+
+            // Convert parsed properties to the target class
             return ObjectMapperUtil.objectMapper.convertValue(parsedProperties, clazz);
         } catch (Exception e) {
             log.error("Unexpected error while mapping vertex/edge properties to node object", e);
@@ -68,7 +77,26 @@ public final class GraphUtil {
         }
     }
 
-    private static Map<String, Object> parseProperties(Map<Object, Object> propertiesMap) {
+    private static void parseEdgeProperties(Map<String, Object> parsedProperties, String edgeLabel) {
+        // Retrieve the edge object using the specified edge label (IN or OUT)
+        Object edgeObject = parsedProperties.get(edgeLabel);
+
+        if (ObjectUtils.isNotEmpty(edgeObject) && edgeObject instanceof Map) {
+            // Extract the vertex ID from the edge map
+            String vertexId = ((Map<?, ?>) edgeObject).get(T.id).toString();
+
+            // Create a new map to hold the vertex id
+            if (ObjectUtils.isNotEmpty(vertexId)) {
+                Map<String, Object> vertexMap = new HashMap<>();
+                vertexMap.put(String.valueOf(T.id), vertexId);
+
+                // Add the vertex id map to the parsed properties with a lower-case key
+                parsedProperties.put(edgeLabel.toLowerCase(), vertexMap);
+            }
+        }
+    }
+
+    private static Map<String, Object> parseVertexProperties(Map<Object, Object> propertiesMap) {
         Map<String, Object> result = new HashMap<>();
 
         // Group properties based on their prefixes and flatten nested properties

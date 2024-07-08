@@ -22,7 +22,7 @@ public class FollowRelationship {
     private String status;
     private LocalDate startPeriod;
     private LocalDate endPeriod;
-    private UserNode from;
-    private UserNode to;
+    private UserNode in;
+    private UserNode out;
 
 }
