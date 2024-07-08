@@ -113,10 +113,11 @@ public class UserRepositoryImpl implements UserRepository {
             if (followRelationship.getOut() != null) {
                 followRelationship.setOut(findById(followRelationship.getOut().getId()));
             }
+
             return followRelationship;
         }
 
-        return null;
+        throw new IllegalArgumentException(String.format("Existing relationship found from user id: %s to user id %s", fromId, toId));
     }
 
     @Override
@@ -127,12 +128,16 @@ public class UserRepositoryImpl implements UserRepository {
         Vertex fromVertex = traversalSource.V(fromVertexMap.get(T.id)).next();
         Vertex toVertex = traversalSource.V(toVertexMap.get(T.id)).next();
 
-        traversalSource.V(fromVertex)
-                .outE(FOLLOW_EDGE_LABEL)
-                .where(__.inV().hasId(toVertex.id()))
-                .drop()
-                .iterate();
-
+        if (relationshipExists(fromVertex, toVertex)) {
+            traversalSource.V(fromVertex)
+                    .outE(FOLLOW_EDGE_LABEL)
+                    .where(__.inV().hasId(toVertex.id()))
+                    .drop()
+                    .iterate();
+        } else {
+            throw new IllegalArgumentException(String.format("No existing relationship found from user id: %s to user id: %s", fromId,
+                    toId));
+        }
     }
 
     private Map<Object, Object> retrieveVertexPropertiesById(String id) {

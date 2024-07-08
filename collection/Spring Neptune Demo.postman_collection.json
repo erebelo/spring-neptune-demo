@@ -233,6 +233,15 @@
 					"request": {
 						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\": \"Active\",\r\n    \"startPeriod\": \"2024-01-01\",\r\n    \"endPeriod\": \"2025-12-31\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "http://localhost:8080/spring-neptune-demo/users/{{user_id_1}}/follow/{{user_id_2}}",
 							"protocol": "http",
@@ -256,6 +265,15 @@
 					"request": {
 						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\": \"Active\",\r\n    \"startPeriod\": \"2024-01-01\",\r\n    \"endPeriod\": \"2025-12-31\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "http://localhost:8080/spring-neptune-demo/users/{{user_id_2}}/follow/{{user_id_1}}",
 							"protocol": "http",
