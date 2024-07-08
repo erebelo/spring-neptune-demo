@@ -4,7 +4,6 @@ import com.erebelo.springneptunedemo.domain.graph.node.UserNode;
 import com.erebelo.springneptunedemo.domain.graph.relationship.FollowRelationship;
 import com.erebelo.springneptunedemo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
@@ -20,7 +19,6 @@ import static com.erebelo.springneptunedemo.util.GraphUtil.cleanVertexAndEdgePro
 import static com.erebelo.springneptunedemo.util.GraphUtil.mapVertexAndEdgeToNode;
 import static com.erebelo.springneptunedemo.util.GraphUtil.updateVertexAndEdgeProperties;
 
-@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepository {
@@ -38,7 +36,6 @@ public class UserRepositoryImpl implements UserRepository {
                 .toList();
 
         if (vertexMapList.isEmpty()) {
-            log.info("No users found");
             throw new IllegalArgumentException("No users found");
         }
 

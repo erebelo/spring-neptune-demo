@@ -1,6 +1,7 @@
 package com.erebelo.springneptunedemo.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
@@ -12,8 +13,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@Profile("local")
+@Slf4j
 @RestController
+@Profile("local")
 @RequiredArgsConstructor
 @RequestMapping("graph")
 public class GraphController {
@@ -22,6 +24,7 @@ public class GraphController {
 
     @GetMapping(path = "/data", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> getGraphData() {
+        log.info("Retrieving all vertices and edges");
         Map<String, Object> graphData = new HashMap<>();
 
         // Collect vertices

@@ -2,7 +2,6 @@ package com.erebelo.springneptunedemo.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.structure.T;
@@ -11,7 +10,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-@Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class GraphUtil {
 
@@ -43,7 +41,6 @@ public final class GraphUtil {
                 }
             }
         } catch (Exception e) {
-            log.error("Error updating vertex/edge properties", e);
             throw new IllegalArgumentException("Error updating vertex/edge properties: " + e.getMessage(), e);
         }
     }
@@ -71,28 +68,8 @@ public final class GraphUtil {
             // Convert parsed properties to the target class
             return ObjectMapperUtil.objectMapper.convertValue(parsedProperties, clazz);
         } catch (Exception e) {
-            log.error("Unexpected error while mapping vertex/edge properties to node object", e);
             throw new IllegalArgumentException("Unexpected error while mapping vertex/edge properties to node object: " + e.getMessage(),
                     e);
-        }
-    }
-
-    private static void parseEdgeProperties(Map<String, Object> parsedProperties, String edgeLabel) {
-        // Retrieve the edge object using the specified edge label (IN or OUT)
-        Object edgeObject = parsedProperties.get(edgeLabel);
-
-        if (ObjectUtils.isNotEmpty(edgeObject) && edgeObject instanceof Map) {
-            // Extract the vertex ID from the edge map
-            String vertexId = ((Map<?, ?>) edgeObject).get(T.id).toString();
-
-            // Create a new map to hold the vertex id
-            if (ObjectUtils.isNotEmpty(vertexId)) {
-                Map<String, Object> vertexMap = new HashMap<>();
-                vertexMap.put(String.valueOf(T.id), vertexId);
-
-                // Add the vertex id map to the parsed properties with a lower-case key
-                parsedProperties.put(edgeLabel.toLowerCase(), vertexMap);
-            }
         }
     }
 
@@ -120,5 +97,24 @@ public final class GraphUtil {
         }
 
         return result;
+    }
+
+    private static void parseEdgeProperties(Map<String, Object> parsedProperties, String edgeLabel) {
+        // Retrieve the edge object using the specified edge label (IN or OUT)
+        Object edgeObject = parsedProperties.get(edgeLabel);
+
+        if (ObjectUtils.isNotEmpty(edgeObject) && edgeObject instanceof Map) {
+            // Extract the vertex ID from the edge map
+            String vertexId = ((Map<?, ?>) edgeObject).get(T.id).toString();
+
+            // Create a new map to hold the vertex id
+            if (ObjectUtils.isNotEmpty(vertexId)) {
+                Map<String, Object> vertexMap = new HashMap<>();
+                vertexMap.put(String.valueOf(T.id), vertexId);
+
+                // Add the vertex id map to the parsed properties with a lower-case key
+                parsedProperties.put(edgeLabel.toLowerCase(), vertexMap);
+            }
+        }
     }
 }
