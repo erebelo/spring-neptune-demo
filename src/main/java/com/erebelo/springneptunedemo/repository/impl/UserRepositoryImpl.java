@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.erebelo.springneptunedemo.util.GraphUtil.cleanVertexAndEdgeProperties;
-import static com.erebelo.springneptunedemo.util.GraphUtil.mapVertexAndEdgeToNode;
+import static com.erebelo.springneptunedemo.util.GraphUtil.mapVertexAndEdgeToGraphObject;
 import static com.erebelo.springneptunedemo.util.GraphUtil.updateVertexAndEdgeProperties;
 
 @Repository
@@ -40,14 +40,14 @@ public class UserRepositoryImpl implements UserRepository {
         }
 
         return vertexMapList.stream()
-                .map(v -> mapVertexAndEdgeToNode(v, UserNode.class))
+                .map(v -> mapVertexAndEdgeToGraphObject(v, UserNode.class))
                 .toList();
     }
 
     @Override
     public UserNode findById(String id) {
         Map<Object, Object> vertexMap = retrieveVertexPropertiesById(id);
-        return mapVertexAndEdgeToNode(vertexMap, UserNode.class);
+        return mapVertexAndEdgeToGraphObject(vertexMap, UserNode.class);
     }
 
     @Override
@@ -56,7 +56,7 @@ public class UserRepositoryImpl implements UserRepository {
         updateVertexAndEdgeProperties(gtVertex, node);
 
         GraphTraversal<Vertex, Map<Object, Object>> vertexTraversal = gtVertex.elementMap();
-        return mapVertexAndEdgeToNode(vertexTraversal.next(), UserNode.class);
+        return mapVertexAndEdgeToGraphObject(vertexTraversal.next(), UserNode.class);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class UserRepositoryImpl implements UserRepository {
         updateVertexAndEdgeProperties(gtVertex, node);
 
         GraphTraversal<Vertex, Map<Object, Object>> vertexTraversal = gtVertex.elementMap();
-        return mapVertexAndEdgeToNode(vertexTraversal.next(), UserNode.class);
+        return mapVertexAndEdgeToGraphObject(vertexTraversal.next(), UserNode.class);
     }
 
     @Override
@@ -101,7 +101,7 @@ public class UserRepositoryImpl implements UserRepository {
             updateVertexAndEdgeProperties(gtEdge, relationship);
 
             GraphTraversal<Edge, Map<Object, Object>> edgeTraversal = gtEdge.elementMap();
-            FollowRelationship followRelationship = mapVertexAndEdgeToNode(edgeTraversal.next(), FollowRelationship.class);
+            FollowRelationship followRelationship = mapVertexAndEdgeToGraphObject(edgeTraversal.next(), FollowRelationship.class);
 
             // Mapping edge vertices
             if (followRelationship.getIn() != null) {

@@ -24,10 +24,10 @@ public final class GraphUtil {
         });
     }
 
-    public static <T> void updateVertexAndEdgeProperties(GraphTraversal<?, ?> gtObject, T node) {
+    public static <T> void updateVertexAndEdgeProperties(GraphTraversal<?, ?> gtObject, T graphObject) {
         try {
-            // Convert Node to Map<String, Object>
-            Map<String, Object> properties = ObjectMapperUtil.objectMapper.convertValue(node, Map.class);
+            // Convert Graph Object to Map<String, Object>
+            Map<String, Object> properties = ObjectMapperUtil.objectMapper.convertValue(graphObject, Map.class);
 
             // Iterate through the Map and update Vertex/Edge properties
             for (Map.Entry<String, Object> entry : properties.entrySet()) {
@@ -56,7 +56,7 @@ public final class GraphUtil {
         }
     }
 
-    public static <T> T mapVertexAndEdgeToNode(Map<Object, Object> propertiesMap, Class<T> clazz) {
+    public static <T> T mapVertexAndEdgeToGraphObject(Map<Object, Object> propertiesMap, Class<T> clazz) {
         try {
             // Parse vertex properties dynamically and generically
             Map<String, Object> parsedProperties = parseVertexProperties(propertiesMap);
@@ -68,7 +68,7 @@ public final class GraphUtil {
             // Convert parsed properties to the target class
             return ObjectMapperUtil.objectMapper.convertValue(parsedProperties, clazz);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Unexpected error while mapping vertex/edge properties to node object: " + e.getMessage(),
+            throw new IllegalArgumentException("Unexpected error while mapping vertex/edge properties to graph object: " + e.getMessage(),
                     e);
         }
     }
