@@ -13,8 +13,8 @@ import java.util.Map;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class GraphUtil {
 
-    private static final String IN_EDGE_LABEL = "IN";
-    private static final String OUT_EDGE_LABEL = "OUT";
+    private static final String IN_EDGE_KEY = "IN";
+    private static final String OUT_EDGE_KEY = "OUT";
 
     public static void cleanVertexAndEdgeProperties(GraphTraversal<?, ?> gtObject) {
         gtObject.properties().forEachRemaining(property -> {
@@ -62,8 +62,8 @@ public final class GraphUtil {
             Map<String, Object> parsedProperties = parseVertexProperties(propertiesMap);
 
             // Parse edge properties dynamically and generically
-            parseEdgeProperties(parsedProperties, IN_EDGE_LABEL);
-            parseEdgeProperties(parsedProperties, OUT_EDGE_LABEL);
+            parseEdgeProperties(parsedProperties, IN_EDGE_KEY);
+            parseEdgeProperties(parsedProperties, OUT_EDGE_KEY);
 
             // Convert parsed properties to the target class
             return ObjectMapperUtil.objectMapper.convertValue(parsedProperties, clazz);
