@@ -2,11 +2,13 @@ package com.erebelo.springneptunedemo.repository.impl;
 
 import com.erebelo.springneptunedemo.domain.graph.node.UserNode;
 import com.erebelo.springneptunedemo.domain.graph.relationship.FollowRelationship;
+import com.erebelo.springneptunedemo.domain.response.FollowResponse;
 import com.erebelo.springneptunedemo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
+import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -89,6 +91,19 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public List<FollowResponse> findRelationshipsByUserIdAndDirection(String userId, Direction direction) {
+        GraphTraversal<Vertex, Vertex> gtVertex = retrieveGraphTraversalById(userId);
+
+        List<Map<Object, Object>> edgeMapList = direction == Direction.IN ?
+                gtVertex.inE(FOLLOW_EDGE_LABEL).elementMap().toList() :
+                gtVertex.outE(FOLLOW_EDGE_LABEL).elementMap().toList();
+
+        return edgeMapList.stream()
+                .map(rel -> mapVertexAndEdgeToGraphObject(rel, FollowResponse.class))
+                .toList();
+    }
+
+    @Override
     public FollowRelationship createRelationship(String fromId, String toId, FollowRelationship relationship) {
         Map<Object, Object> fromVertexMap = retrieveVertexPropertiesById(fromId);
         Map<Object, Object> toVertexMap = retrieveVertexPropertiesById(toId);
@@ -103,7 +118,7 @@ public class UserRepositoryImpl implements UserRepository {
             GraphTraversal<Edge, Map<Object, Object>> edgeTraversal = gtEdge.elementMap();
             FollowRelationship followRelationship = mapVertexAndEdgeToGraphObject(edgeTraversal.next(), FollowRelationship.class);
 
-            // Mapping edge vertices
+            // Map IN and OUT edge vertices for the FollowResponse objects
             if (followRelationship.getIn() != null) {
                 followRelationship.setIn(findById(followRelationship.getIn().getId()));
             }

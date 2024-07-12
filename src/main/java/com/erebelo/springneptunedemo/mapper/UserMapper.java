@@ -5,8 +5,12 @@ import com.erebelo.springneptunedemo.domain.graph.relationship.FollowRelationshi
 import com.erebelo.springneptunedemo.domain.request.FollowRequest;
 import com.erebelo.springneptunedemo.domain.request.UserRequest;
 import com.erebelo.springneptunedemo.domain.response.FollowResponse;
+import com.erebelo.springneptunedemo.domain.response.LazyUserResponse;
+import com.erebelo.springneptunedemo.domain.response.UserFollowResponse;
 import com.erebelo.springneptunedemo.domain.response.UserResponse;
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
@@ -19,10 +23,17 @@ public interface UserMapper {
 
     UserResponse nodeToResponse(UserNode node);
 
+    LazyUserResponse nodeToLazyResponse(UserNode node);
+
     UserNode requestToNode(UserRequest request);
 
     FollowRelationship requestToRelationship(FollowRequest request);
 
     FollowResponse relationshipToResponse(FollowRelationship relationship);
+
+    List<UserFollowResponse> relationshipListToUserFollowResponseList(List<FollowResponse> relationshipList, @Context String direction);
+
+    @Mapping(target = "user", expression = "java(direction.equalsIgnoreCase(\"IN\") ? relationship.getIn() : relationship.getOut())")
+    UserFollowResponse relationshipToUserFollowResponse(FollowResponse relationship, @Context String direction);
 
 }

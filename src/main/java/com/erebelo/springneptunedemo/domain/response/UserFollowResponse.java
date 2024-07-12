@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.List;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -19,13 +19,12 @@ import java.util.List;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserResponse {
+public class UserFollowResponse {
 
     private String id;
-    private String username;
-    private String name;
-    private UserAddressResponse address;
-    private List<UserFollowResponse> followers;
-    private List<UserFollowResponse> following;
+    private String status;
+    private LocalDate startPeriod;
+    private LocalDate endPeriod;
+    private LazyUserResponse user;
 
 }
