@@ -120,10 +120,10 @@ public class UserRepositoryImpl implements UserRepository {
 
             // Map IN and OUT edge vertices for the FollowResponse objects
             if (followEdge.getIn() != null) {
-                followEdge.setIn(findById(followEdge.getIn().getId()));
+                followEdge.setIn(mapVertexAndEdgeToGraphObject(toVertexMap, UserNode.class));
             }
             if (followEdge.getOut() != null) {
-                followEdge.setOut(findById(followEdge.getOut().getId()));
+                followEdge.setOut(mapVertexAndEdgeToGraphObject(fromVertexMap, UserNode.class));
             }
 
             return followEdge;
