@@ -1,4 +1,4 @@
-package com.erebelo.springneptunedemo.domain.graph.relationship;
+package com.erebelo.springneptunedemo.domain.graph.edge;
 
 import com.erebelo.springneptunedemo.domain.graph.node.UserNode;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class FollowRelationship {
+public class FollowEdge {
 
     private String id;
     private String status;

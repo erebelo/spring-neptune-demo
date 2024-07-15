@@ -1,7 +1,7 @@
 package com.erebelo.springneptunedemo.repository.impl;
 
+import com.erebelo.springneptunedemo.domain.graph.edge.FollowEdge;
 import com.erebelo.springneptunedemo.domain.graph.node.UserNode;
-import com.erebelo.springneptunedemo.domain.graph.relationship.FollowRelationship;
 import com.erebelo.springneptunedemo.domain.response.FollowResponse;
 import com.erebelo.springneptunedemo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -82,7 +82,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .filter(v -> id.equalsIgnoreCase(v.get(T.id).toString()))
                 .findFirst()
                 .ifPresentOrElse(vertex -> {
-                            // Delete the vertex and its relationships
+                            // Delete the vertex and its edges
                             traversalSource.V(vertex.get(T.id)).drop().iterate();
                         }, () -> {
                             throw new IllegalArgumentException("User not found by id: " + id);
@@ -91,7 +91,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public List<FollowResponse> findRelationshipsByUserIdAndDirection(String userId, Direction direction) {
+    public List<FollowResponse> findEdgesByUserIdAndDirection(String userId, Direction direction) {
         GraphTraversal<Vertex, Vertex> gtVertex = retrieveGraphTraversalById(userId);
 
         List<Map<Object, Object>> edgeMapList = direction == Direction.IN ?
@@ -104,50 +104,50 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public FollowRelationship createRelationship(String fromId, String toId, FollowRelationship relationship) {
+    public FollowEdge createEdge(String fromId, String toId, FollowEdge edge) {
         Map<Object, Object> fromVertexMap = retrieveVertexPropertiesById(fromId);
         Map<Object, Object> toVertexMap = retrieveVertexPropertiesById(toId);
 
         Vertex fromVertex = traversalSource.V(fromVertexMap.get(T.id)).next();
         Vertex toVertex = traversalSource.V(toVertexMap.get(T.id)).next();
 
-        if (!relationshipExists(fromVertex, toVertex)) {
+        if (!edgeExists(fromVertex, toVertex)) {
             GraphTraversal<Edge, Edge> gtEdge = traversalSource.addE(FOLLOW_EDGE_LABEL).from(fromVertex).to(toVertex);
-            updateVertexAndEdgeProperties(gtEdge, relationship);
+            updateVertexAndEdgeProperties(gtEdge, edge);
 
             GraphTraversal<Edge, Map<Object, Object>> edgeTraversal = gtEdge.elementMap();
-            FollowRelationship followRelationship = mapVertexAndEdgeToGraphObject(edgeTraversal.next(), FollowRelationship.class);
+            FollowEdge followEdge = mapVertexAndEdgeToGraphObject(edgeTraversal.next(), FollowEdge.class);
 
             // Map IN and OUT edge vertices for the FollowResponse objects
-            if (followRelationship.getIn() != null) {
-                followRelationship.setIn(findById(followRelationship.getIn().getId()));
+            if (followEdge.getIn() != null) {
+                followEdge.setIn(findById(followEdge.getIn().getId()));
             }
-            if (followRelationship.getOut() != null) {
-                followRelationship.setOut(findById(followRelationship.getOut().getId()));
+            if (followEdge.getOut() != null) {
+                followEdge.setOut(findById(followEdge.getOut().getId()));
             }
 
-            return followRelationship;
+            return followEdge;
         }
 
-        throw new IllegalArgumentException(String.format("Existing relationship found from user id: %s to user id %s", fromId, toId));
+        throw new IllegalArgumentException(String.format("Existing edge found from user id: %s to user id %s", fromId, toId));
     }
 
     @Override
-    public void removeRelationship(String fromId, String toId) {
+    public void removeEdge(String fromId, String toId) {
         Map<Object, Object> fromVertexMap = retrieveVertexPropertiesById(fromId);
         Map<Object, Object> toVertexMap = retrieveVertexPropertiesById(toId);
 
         Vertex fromVertex = traversalSource.V(fromVertexMap.get(T.id)).next();
         Vertex toVertex = traversalSource.V(toVertexMap.get(T.id)).next();
 
-        if (relationshipExists(fromVertex, toVertex)) {
+        if (edgeExists(fromVertex, toVertex)) {
             traversalSource.V(fromVertex)
                     .outE(FOLLOW_EDGE_LABEL)
                     .where(__.inV().hasId(toVertex.id()))
                     .drop()
                     .iterate();
         } else {
-            throw new IllegalArgumentException(String.format("No existing relationship found from user id: %s to user id: %s", fromId,
+            throw new IllegalArgumentException(String.format("No existing edge found from user id: %s to user id: %s", fromId,
                     toId));
         }
     }
@@ -173,7 +173,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .orElseThrow(() -> new IllegalArgumentException("User not found by id: " + id));
     }
 
-    private boolean relationshipExists(Vertex fromVertex, Vertex toVertex) {
+    private boolean edgeExists(Vertex fromVertex, Vertex toVertex) {
         return traversalSource.V(fromVertex).outE(FOLLOW_EDGE_LABEL).inV().hasId(toVertex.id()).hasNext();
     }
 }

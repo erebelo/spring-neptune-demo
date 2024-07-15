@@ -66,7 +66,7 @@ public class UserController {
     @PostMapping("/{fromId}/follow/{toId}")
     public ResponseEntity<FollowResponse> follow(@PathVariable String fromId, @PathVariable String toId,
             @Valid @RequestBody FollowRequest request) {
-        log.info("Creating FOLLOW relationship from user id: {} to user id: {} by object: {}", fromId, toId, request);
+        log.info("Creating FOLLOW edge from user id: {} to user id: {} by object: {}", fromId, toId, request);
         return ResponseEntity.ok(service.follow(fromId, toId, request));
     }
 

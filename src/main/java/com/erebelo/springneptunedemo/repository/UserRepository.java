@@ -1,7 +1,7 @@
 package com.erebelo.springneptunedemo.repository;
 
+import com.erebelo.springneptunedemo.domain.graph.edge.FollowEdge;
 import com.erebelo.springneptunedemo.domain.graph.node.UserNode;
-import com.erebelo.springneptunedemo.domain.graph.relationship.FollowRelationship;
 import com.erebelo.springneptunedemo.domain.response.FollowResponse;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 
@@ -19,10 +19,10 @@ public interface UserRepository {
 
     void deleteById(String id);
 
-    List<FollowResponse> findRelationshipsByUserIdAndDirection(String userId, Direction direction);
+    List<FollowResponse> findEdgesByUserIdAndDirection(String userId, Direction direction);
 
-    FollowRelationship createRelationship(String fromId, String toId, FollowRelationship relationship);
+    FollowEdge createEdge(String fromId, String toId, FollowEdge edge);
 
-    void removeRelationship(String fromId, String toId);
+    void removeEdge(String fromId, String toId);
 
 }

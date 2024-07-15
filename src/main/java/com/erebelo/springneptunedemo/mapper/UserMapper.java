@@ -1,7 +1,7 @@
 package com.erebelo.springneptunedemo.mapper;
 
+import com.erebelo.springneptunedemo.domain.graph.edge.FollowEdge;
 import com.erebelo.springneptunedemo.domain.graph.node.UserNode;
-import com.erebelo.springneptunedemo.domain.graph.relationship.FollowRelationship;
 import com.erebelo.springneptunedemo.domain.request.FollowRequest;
 import com.erebelo.springneptunedemo.domain.request.UserRequest;
 import com.erebelo.springneptunedemo.domain.response.FollowResponse;
@@ -27,13 +27,13 @@ public interface UserMapper {
 
     UserNode requestToNode(UserRequest request);
 
-    FollowRelationship requestToRelationship(FollowRequest request);
+    FollowEdge requestToEdge(FollowRequest request);
 
-    FollowResponse relationshipToResponse(FollowRelationship relationship);
+    FollowResponse edgeToResponse(FollowEdge edge);
 
-    List<UserFollowResponse> relationshipListToUserFollowResponseList(List<FollowResponse> relationshipList, @Context String direction);
+    List<UserFollowResponse> edgeListToUserFollowResponseList(List<FollowResponse> edgeList, @Context String direction);
 
-    @Mapping(target = "user", expression = "java(direction.equalsIgnoreCase(\"IN\") ? relationship.getIn() : relationship.getOut())")
-    UserFollowResponse relationshipToUserFollowResponse(FollowResponse relationship, @Context String direction);
+    @Mapping(target = "user", expression = "java(direction.equalsIgnoreCase(\"IN\") ? edge.getIn() : edge.getOut())")
+    UserFollowResponse edgeToUserFollowResponse(FollowResponse edge, @Context String direction);
 
 }

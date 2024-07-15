@@ -30,16 +30,16 @@ public class UserServiceImpl implements UserService {
     public UserResponse findById(String id) {
         var node = repository.findById(id);
 
-        List<FollowResponse> followers = repository.findRelationshipsByUserIdAndDirection(id, Direction.IN);
-        List<FollowResponse> following = repository.findRelationshipsByUserIdAndDirection(id, Direction.OUT);
+        List<FollowResponse> followers = repository.findEdgesByUserIdAndDirection(id, Direction.IN);
+        List<FollowResponse> following = repository.findEdgesByUserIdAndDirection(id, Direction.OUT);
 
         // Parsing followers by OUT direction and following by IN direction
         followers.forEach(f -> setUserBasedOnDirection(f, Direction.OUT));
         following.forEach(f -> setUserBasedOnDirection(f, Direction.IN));
 
         var response = mapper.nodeToResponse(node);
-        response.setFollowers(mapper.relationshipListToUserFollowResponseList(followers, Direction.OUT.name()));
-        response.setFollowing(mapper.relationshipListToUserFollowResponseList(following, Direction.IN.name()));
+        response.setFollowers(mapper.edgeListToUserFollowResponseList(followers, Direction.OUT.name()));
+        response.setFollowing(mapper.edgeListToUserFollowResponseList(following, Direction.IN.name()));
 
         return response;
     }
@@ -67,15 +67,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public FollowResponse follow(String fromId, String toId, FollowRequest request) {
-        var relationship = mapper.requestToRelationship(request);
-        relationship = repository.createRelationship(fromId, toId, relationship);
+        var edge = mapper.requestToEdge(request);
+        edge = repository.createEdge(fromId, toId, edge);
 
-        return mapper.relationshipToResponse(relationship);
+        return mapper.edgeToResponse(edge);
     }
 
     @Override
     public void unfollow(String fromId, String toId) {
-        repository.removeRelationship(fromId, toId);
+        repository.removeEdge(fromId, toId);
     }
 
     private void setUserBasedOnDirection(FollowResponse followResponse, Direction direction) {
