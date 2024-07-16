@@ -1,5 +1,6 @@
-package com.erebelo.springneptunedemo.domain.response;
+package com.erebelo.springneptunedemo.domain.response.node;
 
+import com.erebelo.springneptunedemo.domain.response.edge.LazyFollowResponse;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -9,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
+
 @Getter
 @Setter
 @ToString
@@ -17,12 +20,13 @@ import lombok.ToString;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserAddressResponse {
+public class UserResponse {
 
-    private String addressLine;
-    private String zipCode;
-    private String city;
-    private String state;
-    private String country;
+    private String id;
+    private String username;
+    private String name;
+    private UserAddressResponse address;
+    private List<LazyFollowResponse> followers;
+    private List<LazyFollowResponse> following;
 
 }

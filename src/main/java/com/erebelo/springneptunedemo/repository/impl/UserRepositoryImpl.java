@@ -2,7 +2,6 @@ package com.erebelo.springneptunedemo.repository.impl;
 
 import com.erebelo.springneptunedemo.domain.graph.edge.FollowEdge;
 import com.erebelo.springneptunedemo.domain.graph.node.UserNode;
-import com.erebelo.springneptunedemo.domain.response.FollowResponse;
 import com.erebelo.springneptunedemo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
@@ -91,40 +90,50 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public List<FollowResponse> findEdgesByUserIdAndDirection(String userId, Direction direction) {
+    public List<FollowEdge> findEdgesByUserIdAndDirection(String userId, Direction direction) {
         GraphTraversal<Vertex, Vertex> gtVertex = retrieveGraphTraversalById(userId);
 
+        // Retrieve all edges which the vertex direction is IN or OUT
         List<Map<Object, Object>> edgeMapList = direction == Direction.IN ?
                 gtVertex.inE(FOLLOW_EDGE_LABEL).elementMap().toList() :
                 gtVertex.outE(FOLLOW_EDGE_LABEL).elementMap().toList();
 
         return edgeMapList.stream()
-                .map(rel -> mapVertexAndEdgeToGraphObject(rel, FollowResponse.class))
+                .map(rel -> {
+                    // Map edge properties
+                    FollowEdge followEdge = mapVertexAndEdgeToGraphObject(rel, FollowEdge.class);
+
+                    // Retrieve IN and OUT edge vertices
+                    followEdge.setIn(this.findById(((Map<?, ?>) rel.get(Direction.IN)).get(T.id).toString()));
+                    followEdge.setOut(this.findById(((Map<?, ?>) rel.get(Direction.OUT)).get(T.id).toString()));
+
+                    return followEdge;
+                })
                 .toList();
     }
 
     @Override
     public FollowEdge createEdge(String fromId, String toId, FollowEdge edge) {
+        // Retrieve vertex properties
         Map<Object, Object> fromVertexMap = retrieveVertexPropertiesById(fromId);
         Map<Object, Object> toVertexMap = retrieveVertexPropertiesById(toId);
 
+        // Retrieve vertex object by a generic id type
         Vertex fromVertex = traversalSource.V(fromVertexMap.get(T.id)).next();
         Vertex toVertex = traversalSource.V(toVertexMap.get(T.id)).next();
 
+        // Check if the edge does not exist
         if (!edgeExists(fromVertex, toVertex)) {
             GraphTraversal<Edge, Edge> gtEdge = traversalSource.addE(FOLLOW_EDGE_LABEL).from(fromVertex).to(toVertex);
             updateVertexAndEdgeProperties(gtEdge, edge);
 
+            // Map edge properties
             GraphTraversal<Edge, Map<Object, Object>> edgeTraversal = gtEdge.elementMap();
             FollowEdge followEdge = mapVertexAndEdgeToGraphObject(edgeTraversal.next(), FollowEdge.class);
 
-            // Map IN and OUT edge vertices for the FollowResponse objects
-            if (followEdge.getIn() != null) {
-                followEdge.setIn(mapVertexAndEdgeToGraphObject(toVertexMap, UserNode.class));
-            }
-            if (followEdge.getOut() != null) {
-                followEdge.setOut(mapVertexAndEdgeToGraphObject(fromVertexMap, UserNode.class));
-            }
+            // Map IN and OUT edge vertices
+            followEdge.setIn(mapVertexAndEdgeToGraphObject(toVertexMap, UserNode.class));
+            followEdge.setOut(mapVertexAndEdgeToGraphObject(fromVertexMap, UserNode.class));
 
             return followEdge;
         }
@@ -134,12 +143,15 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public void removeEdge(String fromId, String toId) {
+        // Retrieve vertex properties
         Map<Object, Object> fromVertexMap = retrieveVertexPropertiesById(fromId);
         Map<Object, Object> toVertexMap = retrieveVertexPropertiesById(toId);
 
+        // Retrieve vertex object by a generic id type
         Vertex fromVertex = traversalSource.V(fromVertexMap.get(T.id)).next();
         Vertex toVertex = traversalSource.V(toVertexMap.get(T.id)).next();
 
+        // Check if the edge exists
         if (edgeExists(fromVertex, toVertex)) {
             traversalSource.V(fromVertex)
                     .outE(FOLLOW_EDGE_LABEL)

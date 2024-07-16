@@ -2,8 +2,8 @@ package com.erebelo.springneptunedemo.controller;
 
 import com.erebelo.springneptunedemo.domain.request.FollowRequest;
 import com.erebelo.springneptunedemo.domain.request.UserRequest;
-import com.erebelo.springneptunedemo.domain.response.FollowResponse;
-import com.erebelo.springneptunedemo.domain.response.UserResponse;
+import com.erebelo.springneptunedemo.domain.response.edge.FollowResponse;
+import com.erebelo.springneptunedemo.domain.response.node.UserResponse;
 import com.erebelo.springneptunedemo.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

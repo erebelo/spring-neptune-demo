@@ -1,5 +1,6 @@
-package com.erebelo.springneptunedemo.domain.response;
+package com.erebelo.springneptunedemo.domain.response.edge;
 
+import com.erebelo.springneptunedemo.domain.response.node.LazyUserResponse;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

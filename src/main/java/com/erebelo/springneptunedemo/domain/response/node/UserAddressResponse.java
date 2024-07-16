@@ -1,4 +1,4 @@
-package com.erebelo.springneptunedemo.domain.response;
+package com.erebelo.springneptunedemo.domain.response.node;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.time.LocalDate;
-
 @Getter
 @Setter
 @ToString
@@ -19,12 +17,12 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UserFollowResponse {
+public class UserAddressResponse {
 
-    private String id;
-    private String status;
-    private LocalDate startPeriod;
-    private LocalDate endPeriod;
-    private LazyUserResponse user;
+    private String addressLine;
+    private String zipCode;
+    private String city;
+    private String state;
+    private String country;
 
 }
