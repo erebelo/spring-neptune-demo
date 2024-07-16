@@ -18,7 +18,6 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,19 +41,18 @@ class UserRepositoryTest {
         map.put("id", "123");
 
         given(traversalSource.V()).willReturn(gtVertex);
-        given(traversalSource.V().hasLabel(anyString())).willReturn(gtVertex);
-        given(traversalSource.V().hasLabel(anyString()).has(anyString(), anyString())).willReturn(gtVertex);
-        given(traversalSource.V().hasLabel(anyString()).has(anyString(), anyString()).elementMap()).willReturn(gtVertexMap);
-        given(traversalSource.V().hasLabel(anyString()).has(anyString(), anyString()).elementMap().toList()).willReturn(Collections.singletonList(map));
+        given(gtVertex.hasLabel(anyString())).willReturn(gtVertex);
+        given(gtVertex.elementMap()).willReturn(gtVertexMap);
+        given(gtVertexMap.toList()).willReturn(Collections.singletonList(map));
 
         var result = repository.findAll();
 
         assertThat(result).isNotNull();
 
-        verify(traversalSource, times(5)).V();
-        verify(traversalSource.V()).hasLabel("User");
-        verify(traversalSource.V().hasLabel("User"), times(2)).elementMap();
-        verify(traversalSource.V().hasLabel("User").elementMap()).toList();
+        verify(traversalSource).V();
+        verify(gtVertex).hasLabel("User");
+        verify(gtVertex).elementMap();
+        verify(gtVertexMap).toList();
     }
 
     @Test
