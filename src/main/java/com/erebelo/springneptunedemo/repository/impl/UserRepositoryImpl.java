@@ -125,13 +125,12 @@ public class UserRepositoryImpl implements UserRepository {
         Map<Object, Object> fromVertexMap = retrieveVertexPropertiesById(fromId);
         Map<Object, Object> toVertexMap = retrieveVertexPropertiesById(toId);
 
-        // Retrieve vertex object by a generic id type
-        Vertex fromVertex = traversalSource.V(fromVertexMap.get(T.id)).next();
-        Vertex toVertex = traversalSource.V(toVertexMap.get(T.id)).next();
+        Object fromVertexId = fromVertexMap.get(T.id);
+        Object toVertexId = toVertexMap.get(T.id);
 
         // Check if the edge does not exist
-        if (!edgeExists(fromVertex, toVertex)) {
-            GraphTraversal<Edge, Edge> gtEdge = traversalSource.addE(FOLLOW_EDGE_LABEL).from(fromVertex).to(toVertex);
+        if (!edgeExists(fromVertexId, toVertexId)) {
+            GraphTraversal<Edge, Edge> gtEdge = traversalSource.addE(FOLLOW_EDGE_LABEL).from(__.V(fromVertexId)).to(__.V(toVertexId));
             updateVertexAndEdgeProperties(gtEdge, edge);
 
             // Map edge properties
@@ -154,15 +153,14 @@ public class UserRepositoryImpl implements UserRepository {
         Map<Object, Object> fromVertexMap = retrieveVertexPropertiesById(fromId);
         Map<Object, Object> toVertexMap = retrieveVertexPropertiesById(toId);
 
-        // Retrieve vertex object by a generic id type
-        Vertex fromVertex = traversalSource.V(fromVertexMap.get(T.id)).next();
-        Vertex toVertex = traversalSource.V(toVertexMap.get(T.id)).next();
+        Object fromVertexId = fromVertexMap.get(T.id);
+        Object toVertexId = toVertexMap.get(T.id);
 
         // Check if the edge exists
-        if (edgeExists(fromVertex, toVertex)) {
-            traversalSource.V(fromVertex)
+        if (edgeExists(fromVertexId, toVertexId)) {
+            traversalSource.V(fromVertexId)
                     .outE(FOLLOW_EDGE_LABEL)
-                    .where(__.inV().hasId(toVertex.id()))
+                    .where(__.inV().hasId(toVertexId))
                     .drop()
                     .iterate();
         } else {
@@ -191,7 +189,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND_ERROR_MESSAGE + id));
     }
 
-    private boolean edgeExists(Vertex fromVertex, Vertex toVertex) {
-        return traversalSource.V(fromVertex).outE(FOLLOW_EDGE_LABEL).inV().hasId(toVertex.id()).hasNext();
+    private boolean edgeExists(Object fromVertexId, Object toVertexId) {
+        return traversalSource.V(fromVertexId).outE(FOLLOW_EDGE_LABEL).inV().hasId(toVertexId).hasNext();
     }
 }
