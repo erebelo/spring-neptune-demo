@@ -11,9 +11,15 @@ import java.util.Map;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class GraphUtil {
 
+    private static final String PARTITION_KEY_PROPERTY = "env";
+    private static final String NESTED_PROPERTY_DELIMITER = "_";
+
+    private static final String UPDATE_PROPERTIES_ERROR_MESSAGE = "Error updating vertex/edge properties: ";
+    private static final String MAP_OBJECT_ERROR_MESSAGE = "Unexpected error while mapping vertex/edge properties to graph object: ";
+
     public static void cleanVertexAndEdgeProperties(GraphTraversal<?, ?> gtObject) {
         gtObject.properties().forEachRemaining(property -> {
-            if (!property.key().equalsIgnoreCase("env")) {
+            if (!property.key().equalsIgnoreCase(PARTITION_KEY_PROPERTY)) {
                 property.remove();
             }
         });
@@ -36,14 +42,14 @@ public final class GraphUtil {
                 }
             }
         } catch (Exception e) {
-            throw new IllegalArgumentException("Error updating vertex/edge properties: " + e.getMessage(), e);
+            throw new IllegalArgumentException(UPDATE_PROPERTIES_ERROR_MESSAGE + e.getMessage(), e);
         }
     }
 
     private static void flattenNestedProperties(GraphTraversal<?, ?> gtObject, String prefix,
             Map<String, Object> nestedProperties) {
         for (Map.Entry<String, Object> entry : nestedProperties.entrySet()) {
-            String key = prefix + "_" + entry.getKey();
+            String key = prefix + NESTED_PROPERTY_DELIMITER + entry.getKey();
             Object value = entry.getValue();
             if (value != null) {
                 gtObject.property(key, value.toString());
@@ -59,8 +65,7 @@ public final class GraphUtil {
             // Convert parsed properties to the target class
             return ObjectMapperUtil.objectMapper.convertValue(parsedProperties, clazz);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Unexpected error while mapping vertex/edge properties to graph object: " + e.getMessage(),
-                    e);
+            throw new IllegalArgumentException(MAP_OBJECT_ERROR_MESSAGE + e.getMessage(), e);
         }
     }
 
@@ -73,11 +78,11 @@ public final class GraphUtil {
             Object value = entry.getValue();
 
             // Split the key into parts based on underscores
-            String[] parts = key.split("_");
+            String[] parts = key.split(NESTED_PROPERTY_DELIMITER);
             if (parts.length > 1) {
                 // Handle nested property
                 var prefix = parts[0];
-                var nestedKey = String.join("_", Arrays.copyOfRange(parts, 1, parts.length));
+                var nestedKey = String.join(NESTED_PROPERTY_DELIMITER, Arrays.copyOfRange(parts, 1, parts.length));
 
                 // Create nested map if it doesn't exist
                 Map<String, Object> nestedMap = (Map<String, Object>) result.computeIfAbsent(prefix, k -> new HashMap<>());

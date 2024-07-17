@@ -2,6 +2,8 @@ package com.erebelo.springneptunedemo.repository.impl;
 
 import com.erebelo.springneptunedemo.domain.graph.edge.FollowEdge;
 import com.erebelo.springneptunedemo.domain.graph.node.UserNode;
+import com.erebelo.springneptunedemo.exception.model.ConflictException;
+import com.erebelo.springneptunedemo.exception.model.NotFoundException;
 import com.erebelo.springneptunedemo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
@@ -29,6 +31,11 @@ public class UserRepositoryImpl implements UserRepository {
     private static final String USER_VERTEX_LABEL = "User";
     private static final String FOLLOW_EDGE_LABEL = "FOLLOW";
 
+    private static final String USERS_NOT_FOUND_ERROR_MESSAGE = "Users not found";
+    private static final String USER_NOT_FOUND_ERROR_MESSAGE = "User not found by id: ";
+    private static final String EXISTING_EDGE_ERROR_MESSAGE = "Existing edge found from user id: %s to user id: %s";
+    private static final String NO_EXISTING_EDGE_ERROR_MESSAGE = "No existing edge found from user id: %s to user id: %s";
+
     @Override
     public List<UserNode> findAll() {
         List<Map<Object, Object>> vertexMapList = traversalSource.V()
@@ -37,7 +44,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .toList();
 
         if (vertexMapList.isEmpty()) {
-            throw new IllegalArgumentException("No users found");
+            throw new NotFoundException(USERS_NOT_FOUND_ERROR_MESSAGE);
         }
 
         return vertexMapList.stream()
@@ -84,7 +91,7 @@ public class UserRepositoryImpl implements UserRepository {
                             // Delete the vertex and its edges
                             traversalSource.V(vertex.get(T.id)).drop().iterate();
                         }, () -> {
-                            throw new IllegalArgumentException("User not found by id: " + id);
+                            throw new NotFoundException(USER_NOT_FOUND_ERROR_MESSAGE + id);
                         }
                 );
     }
@@ -138,7 +145,7 @@ public class UserRepositoryImpl implements UserRepository {
             return followEdge;
         }
 
-        throw new IllegalArgumentException(String.format("Existing edge found from user id: %s to user id %s", fromId, toId));
+        throw new ConflictException(String.format(EXISTING_EDGE_ERROR_MESSAGE, fromId, toId));
     }
 
     @Override
@@ -159,8 +166,7 @@ public class UserRepositoryImpl implements UserRepository {
                     .drop()
                     .iterate();
         } else {
-            throw new IllegalArgumentException(String.format("No existing edge found from user id: %s to user id: %s", fromId,
-                    toId));
+            throw new ConflictException(String.format(NO_EXISTING_EDGE_ERROR_MESSAGE, fromId, toId));
         }
     }
 
@@ -171,7 +177,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .toStream()
                 .filter(v -> id.equalsIgnoreCase(v.get(T.id).toString()))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("User not found by id: " + id));
+                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND_ERROR_MESSAGE + id));
     }
 
     private GraphTraversal<Vertex, Vertex> retrieveGraphTraversalById(String id) {
@@ -182,7 +188,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .filter(v -> id.equalsIgnoreCase(v.get(T.id).toString()))
                 .map(v -> traversalSource.V(v.get(T.id)))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("User not found by id: " + id));
+                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND_ERROR_MESSAGE + id));
     }
 
     private boolean edgeExists(Vertex fromVertex, Vertex toVertex) {
