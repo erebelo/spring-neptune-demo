@@ -21,8 +21,8 @@ public class UserServiceImpl implements UserService {
     private final UserMapper mapper;
 
     @Override
-    public List<UserResponse> findAll() {
-        var nodeList = repository.findAll();
+    public List<UserResponse> findAll(String name, String addressState, Integer limit, Integer page) {
+        var nodeList = repository.findAll(name, addressState, limit, page);
         return mapper.nodeListToResponseList(nodeList);
     }
 

@@ -14,7 +14,7 @@ REST API project developed in Java using Spring Boot 3, Neptune and TinkerGraph 
 - Use the application property 'aws.neptune.embedded' to switch between Neptune and TinkerGraph database
 - Run the SpringNeptuneDemoApplication class as Java Application
 
-## DB Visualization
+## DB Preview
 
 - Hit [Graph Data](http://localhost:8080/spring-neptune-demo/graph/data) to view the graph json data
 - Hit [Graph Viewer](http://localhost:8080/spring-neptune-demo/index.html) to view the graph vertex/edge representation

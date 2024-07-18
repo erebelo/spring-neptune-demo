@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface UserRepository {
 
-    List<UserNode> findAll();
+    List<UserNode> findAll(String name, String addressState, Integer limit, Integer page);
 
     UserNode findById(String id);
 

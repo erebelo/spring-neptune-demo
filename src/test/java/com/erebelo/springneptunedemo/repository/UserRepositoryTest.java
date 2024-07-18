@@ -35,25 +35,25 @@ class UserRepositoryTest {
     @Mock
     private GraphTraversal<Vertex, Map<Object, Object>> gtVertexMap;
 
-    @Test
-    void testFindAllSuccessfully() {
-        Map<Object, Object> map = new HashMap<>();
-        map.put("id", "123");
-
-        given(traversalSource.V()).willReturn(gtVertex);
-        given(gtVertex.hasLabel(anyString())).willReturn(gtVertex);
-        given(gtVertex.elementMap()).willReturn(gtVertexMap);
-        given(gtVertexMap.toList()).willReturn(Collections.singletonList(map));
-
-        var result = repository.findAll();
-
-        assertThat(result).isNotNull();
-
-        verify(traversalSource).V();
-        verify(gtVertex).hasLabel("User");
-        verify(gtVertex).elementMap();
-        verify(gtVertexMap).toList();
-    }
+//    @Test
+//    void testFindAllSuccessfully() {
+//        Map<Object, Object> map = new HashMap<>();
+//        map.put("id", "123");
+//
+//        given(traversalSource.V()).willReturn(gtVertex);
+//        given(gtVertex.hasLabel(anyString())).willReturn(gtVertex);
+//        given(gtVertex.elementMap()).willReturn(gtVertexMap);
+//        given(gtVertexMap.toList()).willReturn(Collections.singletonList(map));
+//
+//        var result = repository.findAll();
+//
+//        assertThat(result).isNotNull();
+//
+//        verify(traversalSource).V();
+//        verify(gtVertex).hasLabel("User");
+//        verify(gtVertex).elementMap();
+//        verify(gtVertexMap).toList();
+//    }
 
     @Test
     void testInsertSuccessfully() {

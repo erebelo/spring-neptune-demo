@@ -6,10 +6,12 @@ import com.erebelo.springneptunedemo.domain.response.edge.FollowResponse;
 import com.erebelo.springneptunedemo.domain.response.node.UserResponse;
 import com.erebelo.springneptunedemo.service.UserService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,12 +19,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 
 @Slf4j
+@Validated
 @RestController
 @RequestMapping("users")
 @RequiredArgsConstructor
@@ -31,9 +35,13 @@ public class UserController {
     private final UserService service;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<UserResponse>> findAll() {
-        log.info("Getting all users");
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<List<UserResponse>> findAll(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "addressState", required = false) String addressState,
+            @Min(1) @RequestParam(value = "limit", required = false, defaultValue = "50") Integer limit,
+            @Min(1) @RequestParam(value = "page", required = false, defaultValue = "1") Integer page) {
+        log.info("Getting all users with params: [name: {}, addressState: {}, limit: {}, page: {}]", name, addressState, limit, page);
+        return ResponseEntity.ok(service.findAll(name, addressState, limit, page));
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

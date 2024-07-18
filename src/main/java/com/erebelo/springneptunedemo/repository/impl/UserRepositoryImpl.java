@@ -21,6 +21,10 @@ import java.util.Map;
 import static com.erebelo.springneptunedemo.util.GraphUtil.cleanVertexAndEdgeProperties;
 import static com.erebelo.springneptunedemo.util.GraphUtil.mapVertexAndEdgeToGraphObject;
 import static com.erebelo.springneptunedemo.util.GraphUtil.updateVertexAndEdgeProperties;
+import static com.erebelo.springneptunedemo.util.QueryUtil.calculatePaginationIndexes;
+import static com.erebelo.springneptunedemo.util.QueryUtil.propertyLikeRegex;
+import static com.erebelo.springneptunedemo.util.QueryUtil.propertyRegex;
+import static org.apache.tinkerpop.gremlin.process.traversal.TextP.regex;
 
 @Repository
 @RequiredArgsConstructor
@@ -30,6 +34,9 @@ public class UserRepositoryImpl implements UserRepository {
 
     private static final String USER_VERTEX_LABEL = "User";
     private static final String FOLLOW_EDGE_LABEL = "FOLLOW";
+    private static final String NAME_PROPERTY = "name";
+    private static final String ADDRESS_STATE_PROPERTY = "address_state";
+    private static final String REGEX_CASE_INSENSITIVE = "(?i)";
 
     private static final String USERS_NOT_FOUND_ERROR_MESSAGE = "Users not found";
     private static final String USER_NOT_FOUND_ERROR_MESSAGE = "User not found by id: ";
@@ -37,9 +44,15 @@ public class UserRepositoryImpl implements UserRepository {
     private static final String NO_EXISTING_EDGE_ERROR_MESSAGE = "No existing edge found from user id: %s to user id: %s";
 
     @Override
-    public List<UserNode> findAll() {
+    public List<UserNode> findAll(String name, String addressState, Integer limit, Integer page) {
+        // Calculate the start and end indexes for pagination
+        int[] indexes = calculatePaginationIndexes(limit, page);
+
         List<Map<Object, Object>> vertexMapList = traversalSource.V()
                 .hasLabel(USER_VERTEX_LABEL)
+                .has(NAME_PROPERTY, regex(REGEX_CASE_INSENSITIVE + propertyLikeRegex(name)))
+                .has(ADDRESS_STATE_PROPERTY, regex(REGEX_CASE_INSENSITIVE + propertyRegex(addressState)))
+                .range(indexes[0], indexes[1])
                 .elementMap()
                 .toList();
 
@@ -178,6 +191,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND_ERROR_MESSAGE + id));
     }
 
+    // TODO
     private GraphTraversal<Vertex, Vertex> retrieveGraphTraversalById(String id) {
         return traversalSource.V()
                 .hasLabel(USER_VERTEX_LABEL)

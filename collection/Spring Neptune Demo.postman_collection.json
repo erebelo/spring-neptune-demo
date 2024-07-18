@@ -55,6 +55,44 @@
 					"response": []
 				},
 				{
+					"name": "GET All Users with Params",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/spring-neptune-demo/users?name=Eduardo&addressState=N&limit=20&page=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"spring-neptune-demo",
+								"users"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Eduardo"
+								},
+								{
+									"key": "addressState",
+									"value": "N"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "GET User by Id",
 					"request": {
 						"method": "GET",

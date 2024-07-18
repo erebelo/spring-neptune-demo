@@ -1,9 +1,9 @@
 package com.erebelo.springneptunedemo.exception;
 
+import com.erebelo.springneptunedemo.exception.model.BadRequestException;
 import com.erebelo.springneptunedemo.exception.model.ConflictException;
 import com.erebelo.springneptunedemo.exception.model.NotFoundException;
 import com.erebelo.springneptunedemo.exception.model.UnprocessableEntityException;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @ControllerAdvice
@@ -49,17 +48,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ExceptionResponse> handleConstraintViolationException(ConstraintViolationException exception) {
         log.error("ConstraintViolationException thrown:", exception);
-
-        String errorMessage = null;
-        Set<ConstraintViolation<?>> violations = exception.getConstraintViolations();
-        if (!ObjectUtils.isEmpty(violations)) {
-            List<String> messages = violations.stream()
-                    .map(ConstraintViolation::getMessage)
-                    .toList();
-            errorMessage = String.join(";", messages);
-        }
-
-        return parseExceptionMessage(HttpStatus.BAD_REQUEST, errorMessage);
+        return parseExceptionMessage(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
     @ResponseBody
@@ -98,6 +87,12 @@ public class GlobalExceptionHandler {
         }
 
         return parseExceptionMessage(HttpStatus.BAD_REQUEST, errorMessage);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ExceptionResponse> handleBadRequestException(BadRequestException exception) {
+        log.error("BadRequestException thrown:", exception);
+        return parseExceptionMessage(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
     @ExceptionHandler(NotFoundException.class)
