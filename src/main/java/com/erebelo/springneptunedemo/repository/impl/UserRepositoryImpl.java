@@ -79,6 +79,32 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public List<FollowEdge> findEdgesByUserIdAndDirection(String userId, Direction vertexDirection) {
+        Vertex vertex = retrieveVertexById(userId);
+
+        // From the vertex perspective, retrieve the edge whose vertex direction is IN (from vertex/followers) or OUT (to vertex/following)
+        List<Map<Object, Object>> edgeMapList = vertexDirection == Direction.IN ?
+                g.V(vertex.id()).inE(FOLLOW_EDGE_LABEL).elementMap().toList() :
+                g.V(vertex.id()).outE(FOLLOW_EDGE_LABEL).elementMap().toList();
+
+        return edgeMapList.stream()
+                .map(rel -> {
+                    // Map edge properties
+                    FollowEdge followEdge = mapVertexAndEdgeToGraphObject(rel, FollowEdge.class);
+
+                    // From edge perspective, retrieve the vertex whose edge direction is IN (to vertex) or OUT (from vertex)
+                    if (vertexDirection == Direction.IN) {
+                        followEdge.setOut(this.findById(((Map<?, ?>) rel.get(Direction.OUT)).get(T.id).toString()));
+                    } else {
+                        followEdge.setIn(this.findById(((Map<?, ?>) rel.get(Direction.IN)).get(T.id).toString()));
+                    }
+
+                    return followEdge;
+                })
+                .toList();
+    }
+
+    @Override
     public UserNode insert(UserNode node) {
         GraphTraversal<Vertex, Vertex> gtVertex = g.addV(USER_VERTEX_LABEL).property(T.id, UUID.randomUUID().toString());
         updateVertexAndEdgeProperties(gtVertex, node);
@@ -102,32 +128,6 @@ public class UserRepositoryImpl implements UserRepository {
     public void deleteById(String id) {
         Vertex vertex = retrieveVertexById(id);
         g.V(vertex.id()).drop().iterate();
-    }
-
-    @Override
-    public List<FollowEdge> findEdgesByUserIdAndDirection(String userId, Direction vertexDirection) {
-        Vertex vertex = retrieveVertexById(userId);
-
-        // Retrieve all edges which the vertex direction is IN (followers) or OUT (following)
-        List<Map<Object, Object>> edgeMapList = vertexDirection == Direction.IN ?
-                g.V(vertex.id()).inE(FOLLOW_EDGE_LABEL).elementMap().toList() :
-                g.V(vertex.id()).outE(FOLLOW_EDGE_LABEL).elementMap().toList();
-
-        return edgeMapList.stream()
-                .map(rel -> {
-                    // Map edge properties
-                    FollowEdge followEdge = mapVertexAndEdgeToGraphObject(rel, FollowEdge.class);
-
-                    // Retrieve the vertex that the edge direction is IN (to vertex) or OUT (from vertex)
-                    if (vertexDirection == Direction.IN) {
-                        followEdge.setOut(this.findById(((Map<?, ?>) rel.get(Direction.OUT)).get(T.id).toString()));
-                    } else {
-                        followEdge.setIn(this.findById(((Map<?, ?>) rel.get(Direction.IN)).get(T.id).toString()));
-                    }
-
-                    return followEdge;
-                })
-                .toList();
     }
 
     @Override
