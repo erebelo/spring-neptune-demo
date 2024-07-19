@@ -1,5 +1,6 @@
 package com.erebelo.springneptunedemo.util;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
@@ -11,34 +12,26 @@ import java.util.Map;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class GraphUtil {
 
-    private static final String PARTITION_KEY_PROPERTY = "env";
     private static final String NESTED_PROPERTY_DELIMITER = "_";
 
     private static final String UPDATE_PROPERTIES_ERROR_MESSAGE = "Error updating vertex/edge properties: ";
     private static final String MAP_OBJECT_ERROR_MESSAGE = "Unexpected error while mapping vertex/edge properties to graph object: ";
 
-    public static void cleanVertexAndEdgeProperties(GraphTraversal<?, ?> gtObject) {
-        gtObject.properties().forEachRemaining(property -> {
-            if (!property.key().equalsIgnoreCase(PARTITION_KEY_PROPERTY)) {
-                property.remove();
-            }
-        });
-    }
-
     public static <T> void updateVertexAndEdgeProperties(GraphTraversal<?, ?> gtObject, T graphObject) {
         try {
             // Convert Graph Object to Map<String, Object>
-            Map<String, Object> properties = ObjectMapperUtil.objectMapper.convertValue(graphObject, Map.class);
+            Map<String, Object> properties = ObjectMapperUtil.objectMapper.convertValue(graphObject, new TypeReference<>() {
+            });
 
             // Iterate through the Map and update Vertex/Edge properties
             for (Map.Entry<String, Object> entry : properties.entrySet()) {
-                if (entry.getValue() != null) {
-                    if (entry.getValue() instanceof Map) {
-                        // Flatten nested Object Map into Vertex/Edge properties
-                        flattenNestedProperties(gtObject, entry.getKey(), (Map<String, Object>) entry.getValue());
-                    } else {
-                        gtObject.property(entry.getKey(), entry.getValue().toString());
-                    }
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                if (value instanceof Map) {
+                    // Flatten nested Object Map into Vertex/Edge properties
+                    flattenNestedProperties(gtObject, key, (Map<String, Object>) value);
+                } else {
+                    gtObject.property(key, value);
                 }
             }
         } catch (Exception e) {
@@ -46,14 +39,10 @@ public final class GraphUtil {
         }
     }
 
-    private static void flattenNestedProperties(GraphTraversal<?, ?> gtObject, String prefix,
-            Map<String, Object> nestedProperties) {
+    private static void flattenNestedProperties(GraphTraversal<?, ?> gtObject, String prefix, Map<String, Object> nestedProperties) {
         for (Map.Entry<String, Object> entry : nestedProperties.entrySet()) {
             String key = prefix + NESTED_PROPERTY_DELIMITER + entry.getKey();
-            Object value = entry.getValue();
-            if (value != null) {
-                gtObject.property(key, value.toString());
-            }
+            gtObject.property(key, entry.getValue());
         }
     }
 

@@ -1,6 +1,7 @@
 package com.erebelo.springneptunedemo.service.impl;
 
 import com.erebelo.springneptunedemo.domain.request.FollowRequest;
+import com.erebelo.springneptunedemo.domain.request.UserAddressRequest;
 import com.erebelo.springneptunedemo.domain.request.UserRequest;
 import com.erebelo.springneptunedemo.domain.response.edge.FollowResponse;
 import com.erebelo.springneptunedemo.domain.response.node.UserResponse;
@@ -49,6 +50,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse update(String id, UserRequest request) {
+        // Objects nested in the request dto classes must be instantiated for the update request to work properly
+        if (request.getAddress() == null) {
+            request.setAddress(new UserAddressRequest());
+        }
+
         var node = mapper.requestToNode(request);
         node = repository.update(id, node);
 

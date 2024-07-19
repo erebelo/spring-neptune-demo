@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.erebelo.springneptunedemo.util.GraphUtil.cleanVertexAndEdgeProperties;
 import static com.erebelo.springneptunedemo.util.GraphUtil.mapVertexAndEdgeToGraphObject;
 import static com.erebelo.springneptunedemo.util.GraphUtil.updateVertexAndEdgeProperties;
 import static com.erebelo.springneptunedemo.util.QueryUtil.calculatePaginationIndexes;
@@ -86,9 +85,6 @@ public class UserRepositoryImpl implements UserRepository {
         Vertex vertex = retrieveVertexById(id);
 
         GraphTraversal<Vertex, Vertex> gtVertex = g.V(vertex.id());
-        cleanVertexAndEdgeProperties(gtVertex);
-
-        gtVertex = g.V(vertex.id());
         updateVertexAndEdgeProperties(gtVertex, node);
 
         GraphTraversal<Vertex, Map<Object, Object>> vertexTraversal = gtVertex.elementMap();
@@ -183,16 +179,6 @@ public class UserRepositoryImpl implements UserRepository {
                 .tryNext()
                 .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND_ERROR_MESSAGE + id));
     }
-
-//    private GraphTraversal<Vertex, Vertex> retrieveGraphTraversalById(String id) {
-//        GraphTraversal<Vertex, Vertex> gtVertex = g.V().hasLabel(USER_VERTEX_LABEL).has(T.id, id);
-//
-//        if (gtVertex.hasNext()) {
-//            return gtVertex;
-//        }
-//
-//        throw new NotFoundException(USER_NOT_FOUND_ERROR_MESSAGE + id);
-//    }
 
     private Vertex retrieveVertexById(String id) {
         return g.V()
