@@ -22,8 +22,7 @@ import java.util.UUID;
 import static com.erebelo.springneptunedemo.util.GraphUtil.mapVertexAndEdgeToGraphObject;
 import static com.erebelo.springneptunedemo.util.GraphUtil.updateVertexAndEdgeProperties;
 import static com.erebelo.springneptunedemo.util.QueryUtil.calculatePaginationIndexes;
-import static com.erebelo.springneptunedemo.util.QueryUtil.propertyLikeRegex;
-import static com.erebelo.springneptunedemo.util.QueryUtil.propertyRegex;
+import static com.erebelo.springneptunedemo.util.QueryUtil.isValidProperty;
 import static org.apache.tinkerpop.gremlin.process.traversal.TextP.regex;
 
 @Repository
@@ -37,6 +36,7 @@ public class UserRepositoryImpl implements UserRepository {
     private static final String NAME_PROPERTY = "name";
     private static final String ADDRESS_STATE_PROPERTY = "address_state";
     private static final String REGEX_CASE_INSENSITIVE = "(?i)";
+    private static final String ANY_PROPERTY = ".*";
 
     private static final String USERS_NOT_FOUND_ERROR_MESSAGE = "Users not found";
     private static final String USER_NOT_FOUND_ERROR_MESSAGE = "User not found by id: ";
@@ -45,13 +45,20 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<UserNode> findAll(String name, String addressState, Integer limit, Integer page) {
+        GraphTraversal<Vertex, Vertex> gtVertex = g.V().hasLabel(USER_VERTEX_LABEL);
+
+        if (isValidProperty(name)) {
+            gtVertex.has(NAME_PROPERTY, regex(REGEX_CASE_INSENSITIVE + ANY_PROPERTY + name + ANY_PROPERTY));
+        }
+
+        if (isValidProperty(addressState)) {
+            gtVertex.has(ADDRESS_STATE_PROPERTY, regex(REGEX_CASE_INSENSITIVE + addressState));
+        }
+
         // Calculate the start and end indexes for pagination
         int[] indexes = calculatePaginationIndexes(limit, page);
 
-        List<Map<Object, Object>> vertexMapList = g.V()
-                .hasLabel(USER_VERTEX_LABEL)
-                .has(NAME_PROPERTY, regex(REGEX_CASE_INSENSITIVE + propertyLikeRegex(name)))
-                .has(ADDRESS_STATE_PROPERTY, regex(REGEX_CASE_INSENSITIVE + propertyRegex(addressState)))
+        List<Map<Object, Object>> vertexMapList = gtVertex
                 .range(indexes[0], indexes[1])
                 .elementMap()
                 .toList();
