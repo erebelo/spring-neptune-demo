@@ -1,4 +1,4 @@
-package com.erebelo.springneptunedemo.controller.validation;
+package com.erebelo.springneptunedemo.controller.filter;
 
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;

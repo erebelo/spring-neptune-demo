@@ -1,6 +1,6 @@
 package com.erebelo.springneptunedemo.config;
 
-import com.erebelo.springneptunedemo.controller.validation.UserRequestFilter;
+import com.erebelo.springneptunedemo.controller.filter.UserRequestFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

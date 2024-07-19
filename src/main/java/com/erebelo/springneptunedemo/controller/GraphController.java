@@ -1,6 +1,5 @@
 package com.erebelo.springneptunedemo.controller;
 
-import com.erebelo.springneptunedemo.util.ObjectMapperUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -14,6 +13,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.erebelo.springneptunedemo.util.ObjectMapperUtil.objectMapper;
 
 @Slf4j
 @RestController
@@ -83,7 +84,7 @@ public class GraphController {
 
     private Object extractIdFromNestedMap(Map<String, Object> properties, String key) {
         if (properties.get(key) instanceof Map) {
-            Map<String, Object> nestedMap = ObjectMapperUtil.objectMapper.convertValue(properties.get(key), Map.class);
+            Map<String, Object> nestedMap = objectMapper.convertValue(properties.get(key), Map.class);
             properties.remove(key);
             return nestedMap.get(ID_KEY);
         }

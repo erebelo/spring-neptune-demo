@@ -1,10 +1,8 @@
-package com.erebelo.springneptunedemo.controller.validation;
+package com.erebelo.springneptunedemo.controller.filter;
 
 import com.erebelo.springneptunedemo.exception.ExceptionResponse;
 import com.erebelo.springneptunedemo.exception.model.BadRequestException;
-import com.erebelo.springneptunedemo.util.ObjectMapperUtil;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +17,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+
+import static com.erebelo.springneptunedemo.util.ObjectMapperUtil.objectMapper;
 
 public class UserRequestFilter extends OncePerRequestFilter {
 
@@ -50,7 +50,7 @@ public class UserRequestFilter extends OncePerRequestFilter {
                 response.setStatus(HttpStatus.BAD_REQUEST.value());
             }
 
-            response.getWriter().write(ObjectMapperUtil.objectMapper.writeValueAsString(exceptionResponse));
+            response.getWriter().write(objectMapper.writeValueAsString(exceptionResponse));
         }
     }
 
@@ -77,7 +77,6 @@ public class UserRequestFilter extends OncePerRequestFilter {
     }
 
     private String modifyNameAttribute(String body) throws IOException {
-        ObjectMapper objectMapper = ObjectMapperUtil.objectMapper;
         JsonNode jsonNode = objectMapper.readTree(body);
         BadRequestException exception = new BadRequestException("[username is mandatory]");
 

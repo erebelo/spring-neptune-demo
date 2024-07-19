@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.erebelo.springneptunedemo.util.ObjectMapperUtil.objectMapper;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class GraphUtil {
 
@@ -20,7 +22,7 @@ public final class GraphUtil {
     public static <T> void updateVertexAndEdgeProperties(GraphTraversal<?, ?> gtObject, T graphObject) {
         try {
             // Convert Graph Object to Map<String, Object>
-            Map<String, Object> properties = ObjectMapperUtil.objectMapper.convertValue(graphObject, new TypeReference<>() {
+            Map<String, Object> properties = objectMapper.convertValue(graphObject, new TypeReference<>() {
             });
 
             // Iterate through the Map and update Vertex/Edge properties
@@ -52,7 +54,7 @@ public final class GraphUtil {
             Map<String, Object> parsedProperties = parseVertexProperties(propertiesMap);
 
             // Convert parsed properties to the target class
-            return ObjectMapperUtil.objectMapper.convertValue(parsedProperties, clazz);
+            return objectMapper.convertValue(parsedProperties, clazz);
         } catch (Exception e) {
             throw new IllegalArgumentException(MAP_OBJECT_ERROR_MESSAGE + e.getMessage(), e);
         }
