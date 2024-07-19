@@ -17,6 +17,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.erebelo.springneptunedemo.util.GraphUtil.cleanVertexAndEdgeProperties;
 import static com.erebelo.springneptunedemo.util.GraphUtil.mapVertexAndEdgeToGraphObject;
@@ -30,7 +31,7 @@ import static org.apache.tinkerpop.gremlin.process.traversal.TextP.regex;
 @RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepository {
 
-    private final GraphTraversalSource traversalSource;
+    private final GraphTraversalSource g;
 
     private static final String USER_VERTEX_LABEL = "User";
     private static final String FOLLOW_EDGE_LABEL = "FOLLOW";
@@ -48,7 +49,7 @@ public class UserRepositoryImpl implements UserRepository {
         // Calculate the start and end indexes for pagination
         int[] indexes = calculatePaginationIndexes(limit, page);
 
-        List<Map<Object, Object>> vertexMapList = traversalSource.V()
+        List<Map<Object, Object>> vertexMapList = g.V()
                 .hasLabel(USER_VERTEX_LABEL)
                 .has(NAME_PROPERTY, regex(REGEX_CASE_INSENSITIVE + propertyLikeRegex(name)))
                 .has(ADDRESS_STATE_PROPERTY, regex(REGEX_CASE_INSENSITIVE + propertyRegex(addressState)))
@@ -73,7 +74,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public UserNode insert(UserNode node) {
-        GraphTraversal<Vertex, Vertex> gtVertex = traversalSource.addV(USER_VERTEX_LABEL);
+        GraphTraversal<Vertex, Vertex> gtVertex = g.addV(USER_VERTEX_LABEL).property(T.id, UUID.randomUUID().toString());
         updateVertexAndEdgeProperties(gtVertex, node);
 
         GraphTraversal<Vertex, Map<Object, Object>> vertexTraversal = gtVertex.elementMap();
@@ -82,10 +83,12 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public UserNode update(String id, UserNode node) {
-        GraphTraversal<Vertex, Vertex> gtVertex = retrieveGraphTraversalById(id);
+        Vertex vertex = retrieveVertexById(id);
+
+        GraphTraversal<Vertex, Vertex> gtVertex = g.V(vertex.id());
         cleanVertexAndEdgeProperties(gtVertex);
 
-        gtVertex = retrieveGraphTraversalById(id);
+        gtVertex = g.V(vertex.id());
         updateVertexAndEdgeProperties(gtVertex, node);
 
         GraphTraversal<Vertex, Map<Object, Object>> vertexTraversal = gtVertex.elementMap();
@@ -94,38 +97,30 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public void deleteById(String id) {
-        traversalSource.V()
-                .hasLabel(USER_VERTEX_LABEL)
-                .elementMap()
-                .toStream()
-                .filter(v -> id.equalsIgnoreCase(v.get(T.id).toString()))
-                .findFirst()
-                .ifPresentOrElse(vertex -> {
-                            // Delete the vertex and its edges
-                            traversalSource.V(vertex.get(T.id)).drop().iterate();
-                        }, () -> {
-                            throw new NotFoundException(USER_NOT_FOUND_ERROR_MESSAGE + id);
-                        }
-                );
+        Vertex vertex = retrieveVertexById(id);
+        g.V(vertex.id()).drop().iterate();
     }
 
     @Override
-    public List<FollowEdge> findEdgesByUserIdAndDirection(String userId, Direction direction) {
-        GraphTraversal<Vertex, Vertex> gtVertex = retrieveGraphTraversalById(userId);
+    public List<FollowEdge> findEdgesByUserIdAndDirection(String userId, Direction vertexDirection) {
+        Vertex vertex = retrieveVertexById(userId);
 
-        // Retrieve all edges which the vertex direction is IN or OUT
-        List<Map<Object, Object>> edgeMapList = direction == Direction.IN ?
-                gtVertex.inE(FOLLOW_EDGE_LABEL).elementMap().toList() :
-                gtVertex.outE(FOLLOW_EDGE_LABEL).elementMap().toList();
+        // Retrieve all edges which the vertex direction is IN (followers) or OUT (following)
+        List<Map<Object, Object>> edgeMapList = vertexDirection == Direction.IN ?
+                g.V(vertex.id()).inE(FOLLOW_EDGE_LABEL).elementMap().toList() :
+                g.V(vertex.id()).outE(FOLLOW_EDGE_LABEL).elementMap().toList();
 
         return edgeMapList.stream()
                 .map(rel -> {
                     // Map edge properties
                     FollowEdge followEdge = mapVertexAndEdgeToGraphObject(rel, FollowEdge.class);
 
-                    // Retrieve IN and OUT edge vertices
-                    followEdge.setIn(this.findById(((Map<?, ?>) rel.get(Direction.IN)).get(T.id).toString()));
-                    followEdge.setOut(this.findById(((Map<?, ?>) rel.get(Direction.OUT)).get(T.id).toString()));
+                    // Retrieve the vertex that the edge direction is IN (to vertex) or OUT (from vertex)
+                    if (vertexDirection == Direction.IN) {
+                        followEdge.setOut(this.findById(((Map<?, ?>) rel.get(Direction.OUT)).get(T.id).toString()));
+                    } else {
+                        followEdge.setIn(this.findById(((Map<?, ?>) rel.get(Direction.IN)).get(T.id).toString()));
+                    }
 
                     return followEdge;
                 })
@@ -143,7 +138,10 @@ public class UserRepositoryImpl implements UserRepository {
 
         // Check if the edge does not exist
         if (!edgeExists(fromVertexId, toVertexId)) {
-            GraphTraversal<Edge, Edge> gtEdge = traversalSource.addE(FOLLOW_EDGE_LABEL).from(__.V(fromVertexId)).to(__.V(toVertexId));
+            GraphTraversal<Edge, Edge> gtEdge = g.addE(FOLLOW_EDGE_LABEL)
+                    .from(__.V(fromVertexId))
+                    .to(__.V(toVertexId))
+                    .property(T.id, UUID.randomUUID().toString());
             updateVertexAndEdgeProperties(gtEdge, edge);
 
             // Map edge properties
@@ -162,18 +160,14 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public void removeEdge(String fromId, String toId) {
-        // Retrieve vertex properties
-        Map<Object, Object> fromVertexMap = retrieveVertexPropertiesById(fromId);
-        Map<Object, Object> toVertexMap = retrieveVertexPropertiesById(toId);
-
-        Object fromVertexId = fromVertexMap.get(T.id);
-        Object toVertexId = toVertexMap.get(T.id);
+        Vertex fromVertex = retrieveVertexById(fromId);
+        Vertex toVertex = retrieveVertexById(toId);
 
         // Check if the edge exists
-        if (edgeExists(fromVertexId, toVertexId)) {
-            traversalSource.V(fromVertexId)
+        if (edgeExists(fromVertex.id(), toVertex.id())) {
+            g.V(fromVertex.id())
                     .outE(FOLLOW_EDGE_LABEL)
-                    .where(__.inV().hasId(toVertexId))
+                    .where(__.inV().hasId(toVertex.id()))
                     .drop()
                     .iterate();
         } else {
@@ -182,28 +176,33 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     private Map<Object, Object> retrieveVertexPropertiesById(String id) {
-        return traversalSource.V()
+        return g.V()
                 .hasLabel(USER_VERTEX_LABEL)
+                .has(T.id, id)
                 .elementMap()
-                .toStream()
-                .filter(v -> id.equalsIgnoreCase(v.get(T.id).toString()))
-                .findFirst()
+                .tryNext()
                 .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND_ERROR_MESSAGE + id));
     }
 
-    // TODO
-    private GraphTraversal<Vertex, Vertex> retrieveGraphTraversalById(String id) {
-        return traversalSource.V()
+//    private GraphTraversal<Vertex, Vertex> retrieveGraphTraversalById(String id) {
+//        GraphTraversal<Vertex, Vertex> gtVertex = g.V().hasLabel(USER_VERTEX_LABEL).has(T.id, id);
+//
+//        if (gtVertex.hasNext()) {
+//            return gtVertex;
+//        }
+//
+//        throw new NotFoundException(USER_NOT_FOUND_ERROR_MESSAGE + id);
+//    }
+
+    private Vertex retrieveVertexById(String id) {
+        return g.V()
                 .hasLabel(USER_VERTEX_LABEL)
-                .elementMap()
-                .toStream()
-                .filter(v -> id.equalsIgnoreCase(v.get(T.id).toString()))
-                .map(v -> traversalSource.V(v.get(T.id)))
-                .findFirst()
+                .has(T.id, id)
+                .tryNext()
                 .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND_ERROR_MESSAGE + id));
     }
 
     private boolean edgeExists(Object fromVertexId, Object toVertexId) {
-        return traversalSource.V(fromVertexId).outE(FOLLOW_EDGE_LABEL).inV().hasId(toVertexId).hasNext();
+        return g.V(fromVertexId).outE(FOLLOW_EDGE_LABEL).inV().hasId(toVertexId).hasNext();
     }
 }
