@@ -13,6 +13,7 @@ import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -107,7 +108,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public UserNode insert(UserNode node) {
         GraphTraversal<Vertex, Vertex> gtVertex = g.addV(USER_VERTEX_LABEL).property(T.id, UUID.randomUUID().toString());
-        updateVertexAndEdgeProperties(gtVertex, node);
+        updateVertexAndEdgeProperties(gtVertex, node, HttpMethod.POST.name());
 
         GraphTraversal<Vertex, Map<Object, Object>> vertexTraversal = gtVertex.elementMap();
         return mapVertexAndEdgeToGraphObject(vertexTraversal.next(), UserNode.class);
@@ -118,8 +119,9 @@ public class UserRepositoryImpl implements UserRepository {
         Vertex vertex = retrieveVertexById(id);
 
         GraphTraversal<Vertex, Vertex> gtVertex = g.V(vertex.id());
-        updateVertexAndEdgeProperties(gtVertex, node);
+        updateVertexAndEdgeProperties(gtVertex, node, HttpMethod.PUT.name());
 
+        gtVertex = g.V(vertex.id());
         GraphTraversal<Vertex, Map<Object, Object>> vertexTraversal = gtVertex.elementMap();
         return mapVertexAndEdgeToGraphObject(vertexTraversal.next(), UserNode.class);
     }
@@ -145,7 +147,7 @@ public class UserRepositoryImpl implements UserRepository {
                     .from(__.V(fromVertexId))
                     .to(__.V(toVertexId))
                     .property(T.id, UUID.randomUUID().toString());
-            updateVertexAndEdgeProperties(gtEdge, edge);
+            updateVertexAndEdgeProperties(gtEdge, edge, HttpMethod.POST.name());
 
             // Map edge properties
             GraphTraversal<Edge, Map<Object, Object>> edgeTraversal = gtEdge.elementMap();
