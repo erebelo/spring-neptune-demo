@@ -1,18 +1,24 @@
 package com.erebelo.springneptunedemo.service.impl;
 
+import com.erebelo.springneptunedemo.domain.graph.node.UserAddress;
 import com.erebelo.springneptunedemo.domain.request.FollowRequest;
 import com.erebelo.springneptunedemo.domain.request.UserAddressRequest;
 import com.erebelo.springneptunedemo.domain.request.UserRequest;
 import com.erebelo.springneptunedemo.domain.response.edge.FollowResponse;
 import com.erebelo.springneptunedemo.domain.response.node.UserResponse;
+import com.erebelo.springneptunedemo.exception.model.BadRequestException;
 import com.erebelo.springneptunedemo.mapper.UserMapper;
 import com.erebelo.springneptunedemo.repository.UserRepository;
 import com.erebelo.springneptunedemo.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.util.List;
+import java.util.Map;
+
+import static com.erebelo.springneptunedemo.util.ObjectMapperUtil.objectMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +26,10 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
     private final UserMapper mapper;
+
+    private static final String ADDRESS_PROPERTY = "address";
+
+    private static final String INVALID_PAYLOAD_ERROR_MESSAGE = "Request body is mandatory and must contain some attribute";
 
     @Override
     public List<UserResponse> findAll(String name, String addressState, Integer limit, Integer page) {
@@ -58,6 +68,20 @@ public class UserServiceImpl implements UserService {
         var node = mapper.requestToNode(request);
         node = repository.update(id, node);
 
+        return mapper.nodeToResponse(node);
+    }
+
+    @Override
+    public UserResponse patch(String id, Map<String, Object> requestMap) {
+        if (ObjectUtils.isEmpty(requestMap)) {
+            throw new BadRequestException(INVALID_PAYLOAD_ERROR_MESSAGE);
+        }
+
+        if (requestMap.containsKey(ADDRESS_PROPERTY) && requestMap.get(ADDRESS_PROPERTY) == null) {
+            requestMap.put(ADDRESS_PROPERTY, objectMapper.convertValue(new UserAddress(), Map.class));
+        }
+
+        var node = repository.patch(id, requestMap);
         return mapper.nodeToResponse(node);
     }
 

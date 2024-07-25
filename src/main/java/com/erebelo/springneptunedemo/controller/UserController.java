@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Validated
@@ -62,6 +64,12 @@ public class UserController {
     public ResponseEntity<UserResponse> update(@PathVariable String id, @Valid @RequestBody UserRequest request) {
         log.info("Updating user by id: {} {}", id, request);
         return ResponseEntity.ok(service.update(id, request));
+    }
+
+    @PatchMapping(value = "/{id}", consumes = "application/merge-patch+json", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserResponse> patch(@PathVariable String id, @Valid @RequestBody Map<String, Object> requestMap) {
+        log.info("Patching user by id: {} {}", id, requestMap.toString());
+        return ResponseEntity.ok(service.patch(id, requestMap));
     }
 
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

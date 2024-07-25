@@ -6,6 +6,7 @@ import com.erebelo.springneptunedemo.domain.response.edge.FollowResponse;
 import com.erebelo.springneptunedemo.domain.response.node.UserResponse;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserService {
 
@@ -16,6 +17,8 @@ public interface UserService {
     UserResponse insert(UserRequest request);
 
     UserResponse update(String id, UserRequest request);
+
+    UserResponse patch(String id, Map<String, Object> requestMap);
 
     void delete(String id);
 

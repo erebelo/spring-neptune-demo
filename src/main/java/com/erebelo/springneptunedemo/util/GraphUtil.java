@@ -49,8 +49,11 @@ public final class GraphUtil {
             }
 
             // Drop all collected properties at once
-            if (!propertiesToDrop.isEmpty() && op.equals(HttpMethod.PUT.name())) {
-                gtObject.properties(propertiesToDrop.toArray(new String[0])).drop().iterate();
+            if (op.equals(HttpMethod.PUT.name()) || op.equals(HttpMethod.PATCH.name())) {
+                if (!propertiesToDrop.isEmpty()) {
+                    gtObject.properties(propertiesToDrop.toArray(new String[0])).drop();
+                }
+                gtObject.iterate();
             }
         } catch (Exception e) {
             throw new IllegalArgumentException(UPDATE_PROPERTIES_ERROR_MESSAGE + e.getMessage(), e);

@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.util.ObjectUtils;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -49,6 +50,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ExceptionResponse> handleConstraintViolationException(ConstraintViolationException exception) {
         log.error("ConstraintViolationException thrown:", exception);
         return parseExceptionMessage(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ResponseBody
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ExceptionResponse> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException exception) {
+        log.error("HttpMediaTypeNotSupportedException thrown:", exception);
+        return parseExceptionMessage(HttpStatus.UNSUPPORTED_MEDIA_TYPE, exception.getMessage());
     }
 
     @ResponseBody

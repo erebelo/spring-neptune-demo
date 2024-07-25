@@ -127,6 +127,18 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public UserNode patch(String id, Map<String, Object> requestMap) {
+        Vertex vertex = retrieveVertexById(id);
+
+        GraphTraversal<Vertex, Vertex> gtVertex = g.V(vertex.id());
+        updateVertexAndEdgeProperties(gtVertex, requestMap, HttpMethod.PATCH.name());
+
+        gtVertex = g.V(vertex.id());
+        GraphTraversal<Vertex, Map<Object, Object>> vertexTraversal = gtVertex.elementMap();
+        return mapVertexAndEdgeToGraphObject(vertexTraversal.next(), UserNode.class);
+    }
+
+    @Override
     public void deleteById(String id) {
         Vertex vertex = retrieveVertexById(id);
         g.V(vertex.id()).drop().iterate();

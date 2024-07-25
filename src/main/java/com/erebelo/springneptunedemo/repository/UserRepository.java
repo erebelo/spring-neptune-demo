@@ -5,6 +5,7 @@ import com.erebelo.springneptunedemo.domain.graph.node.UserNode;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserRepository {
 
@@ -15,6 +16,8 @@ public interface UserRepository {
     UserNode insert(UserNode node);
 
     UserNode update(String id, UserNode node);
+
+    UserNode patch(String id, Map<String, Object> requestMap);
 
     void deleteById(String id);
 
