@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Graph Visualization with Cytoscape.js</title>
+    <title>Graph DB Preview</title>
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.30.0/cytoscape.min.js"></script> -->
     <script src="cytoscape_3.30.0.min.js"></script>
     <style>
@@ -11,12 +11,57 @@
             height: 600px;
             display: block;
         }
+        .popup {
+            position: absolute;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 10px;
+            display: none;
+            z-index: 10;
+            pointer-events: auto;
+            width: auto;
+            min-width: 200px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            font-size: 12px;
+        }
+        .popup .close-btn {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            background: transparent;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .popup-content {
+            overflow-y: auto;
+        }
+        .popup-content .property-label {
+            margin-bottom: 5px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+        .popup-content .property-item {
+            margin-bottom: 2px;
+            font-size: 14px;
+        }
+        .popup-content {
+            scrollbar-width: thin;
+        }
     </style>
 </head>
 <body>
 <div id="cy"></div>
+<div id="popup" class="popup">
+    <button class="close-btn" onclick="closePopup()">x</button>
+    <div class="popup-content"></div>
+</div>
 
 <script>
+    function closePopup() {
+        document.getElementById('popup').style.display = 'none';
+    }
+
     fetch('/spring-neptune-demo/graph/data')
         .then(response => response.json())
         .then(data => {
@@ -25,7 +70,8 @@
                 data: {
                     id: vertexId,
                     label: data.vertices[vertexId].label,
-                    name: data.vertices[vertexId].name
+                    name: data.vertices[vertexId].name,
+                    properties: data.vertices[vertexId]
                 }
             }));
 
@@ -35,7 +81,8 @@
                     id: edgeId,
                     source: data.edges[edgeId].from,
                     target: data.edges[edgeId].to,
-                    label: data.edges[edgeId].label
+                    label: data.edges[edgeId].label,
+                    properties: data.edges[edgeId]
                 }
             }));
 
@@ -70,13 +117,44 @@
                     }
                 ],
                 layout: {
-                    name: 'grid',
-                    rows: 1
+                    name: 'cose',
+                    padding: 20,
+                    boundingBox: { x1: 0, y1: 0, x2: 1000, y2: 600 }
                 }
             });
 
             // Optional: Fit the graph to the viewport
             cy.fit();
+
+            const popup = document.getElementById('popup');
+            const popupContent = document.querySelector('.popup-content');
+
+            cy.on('tap', 'node, edge', function(evt){
+                const element = evt.target;
+                const elementType = element.isNode() ? 'Vertex' : 'Edge' ;
+                const properties = element.data('properties');
+
+                // Create HTML content for the popup
+                let content = <div class='property-label'>${element.data('label')} ${elementType}:</div>;
+                for (const key in properties) {
+                    if (properties.hasOwnProperty(key)) {
+                        content += <div class='property-item'><strong>${key}:</strong> ${properties[key]}</div>;
+                    }
+                }
+
+                // Set content and position of the popup
+                popupContent.innerHTML = content;
+                popup.style.display = 'block';
+                popup.style.left = evt.renderedPosition.x + 'px';
+                popup.style.top = evt.renderedPosition.y + 'px';
+            });
+
+            cy.on('tap', function(evt){
+                if (evt.target === cy) {
+                    // Hide popup when clicking on the background
+                    popup.style.display = 'none';
+                }
+            });
         }).catch(error => console.error('Error fetching data:', error));
 </script>
 </body>
