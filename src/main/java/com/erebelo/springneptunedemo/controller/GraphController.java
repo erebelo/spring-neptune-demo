@@ -64,8 +64,8 @@ public class GraphController {
         if (!edgeMapList.isEmpty()) {
             for (Map<Object, Object> edgeMap : edgeMapList) {
                 Map<String, Object> properties = convertElementMap(edgeMap);
-                properties.put(TO_KEY, extractIdFromNestedMap(properties, Direction.IN.name()));
                 properties.put(FROM_KEY, extractIdFromNestedMap(properties, Direction.OUT.name()));
+                properties.put(TO_KEY, extractIdFromNestedMap(properties, Direction.IN.name()));
 
                 edges.put(properties.get(T.id.toString()), properties);
             }
