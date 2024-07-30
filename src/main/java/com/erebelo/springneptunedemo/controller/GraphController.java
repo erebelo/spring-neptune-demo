@@ -3,6 +3,8 @@ package com.erebelo.springneptunedemo.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
+import org.apache.tinkerpop.gremlin.structure.Direction;
+import org.apache.tinkerpop.gremlin.structure.T;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,17 +27,18 @@ public class GraphController {
 
     private final GraphTraversalSource g;
 
-    private static final String ID_KEY = "id";
-    private static final String IN_EDGE_KEY = "IN";
-    private static final String OUT_EDGE_KEY = "OUT";
+    private static final String VERTICES_KEY = "vertices";
+    private static final String EDGES_KEY = "edges";
+    private static final String FROM_KEY = "from";
+    private static final String TO_KEY = "to";
 
     @GetMapping(path = "/data", produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> getGraphData() {
         log.info("Retrieving all vertices and edges");
 
         Map<String, Object> graphData = new HashMap<>();
-        graphData.put("vertices", collectVertices());
-        graphData.put("edges", collectEdges());
+        graphData.put(VERTICES_KEY, collectVertices());
+        graphData.put(EDGES_KEY, collectEdges());
 
         return graphData;
     }
@@ -47,8 +50,7 @@ public class GraphController {
         if (!vertexMapList.isEmpty()) {
             for (Map<Object, Object> vertexMap : vertexMapList) {
                 Map<String, Object> properties = convertElementMap(vertexMap);
-
-                vertices.put(properties.get(ID_KEY), properties);
+                vertices.put(properties.get(T.id.toString()), properties);
             }
         }
 
@@ -62,10 +64,10 @@ public class GraphController {
         if (!edgeMapList.isEmpty()) {
             for (Map<Object, Object> edgeMap : edgeMapList) {
                 Map<String, Object> properties = convertElementMap(edgeMap);
-                properties.put("target", extractIdFromNestedMap(properties, IN_EDGE_KEY));
-                properties.put("source", extractIdFromNestedMap(properties, OUT_EDGE_KEY));
+                properties.put(TO_KEY, extractIdFromNestedMap(properties, Direction.IN.name()));
+                properties.put(FROM_KEY, extractIdFromNestedMap(properties, Direction.OUT.name()));
 
-                edges.put(properties.get(ID_KEY), properties);
+                edges.put(properties.get(T.id.toString()), properties);
             }
         }
 
@@ -86,7 +88,8 @@ public class GraphController {
         if (properties.get(key) instanceof Map) {
             Map<String, Object> nestedMap = objectMapper.convertValue(properties.get(key), Map.class);
             properties.remove(key);
-            return nestedMap.get(ID_KEY);
+
+            return nestedMap.get(T.id.toString());
         }
 
         return null;
