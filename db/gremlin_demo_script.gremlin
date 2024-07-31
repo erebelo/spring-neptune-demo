@@ -1,0 +1,44 @@
+-----
+
+-- Create User vertices
+g.addV('User')
+    .property('id', 'abc45678-abcd-90ef-ghij-1234abcd5678')
+    .property('username', '@eduardo')
+    .property('name', 'Eduardo')
+    .as('e')
+  .addV('User')
+    .property('id', 'def45678-abcd-90ef-ghij-1234abcd5678')
+    .property('username', '@joseph')
+    .property('name', 'Joseph')
+    .as('j')
+  .select('e', 'j')
+
+-----
+
+-- Associates a User (@eduardo) to another User (@joseph) and vice versa, creating FOLLOW edge relationships
+g.V().has('User', 'username', '@eduardo').as('e')
+  .V().has('User', 'username', '@joseph').as('j')
+  .select('e').addE('FOLLOW').property('sinceAt', '2024-07-26').to('j')
+  .select('j').addE('FOLLOW').property('sinceAt', '2024-07-26').to('e')
+  .select('e', 'j')
+
+-----
+
+-- Delete all
+g.V().drop()
+
+-- Delete all vertices and their edges
+g.V().hasLabel('User').drop()
+
+-- Deletes a User vertex by username
+g.V().hasLabel('User').has('username', '@eduardo').drop()
+
+-- Deletes one of the FOLLOW edge relationships between two Users (@joseph -> @eduardo)
+g.V().hasLabel('User').has('username', '@joseph').as('j')
+  .outE('FOLLOW').as('f')
+  .inV().hasLabel('User').has('username', '@eduardo').select('f').drop()
+
+-- Fetch by <id>
+g.V('4:7bd1681f-0d48-4c9c-a7c4-f2d18ea4ba6e:4')
+
+-----
