@@ -94,7 +94,13 @@ function validateForm() {
 function layoutConfig(edgesLength) {
   // Determine layout based on the presence of edges
   return edgesLength > 0
-    ? { name: "cose", animate: true }
+    ? {
+        name: "cose",
+        padding: 20,
+        animate: true,
+        fit: true,
+        boundingBox: { x1: 0, y1: 0, x2: 1000, y2: 600 },
+      }
     : { name: "random", fit: true };
 }
 
@@ -219,12 +225,16 @@ async function initializeGraph(data) {
         selector: "edge",
         style: {
           label: "data(label)",
-          color: "#007409",
+          color: "#000000",
           width: 2,
-          "line-color": "#0074d9",
-          "target-arrow-color": "#0074d9",
+          "curve-style": "bezier",
           "target-arrow-shape": "triangle",
+          "target-arrow-color": "#0074d9",
+          "line-color": "#0074d9",
           "text-rotation": "autorotate",
+          "text-background-color": "#fff",
+          "text-background-opacity": 1,
+          "text-background-padding": "3px",
         },
       },
     ],
