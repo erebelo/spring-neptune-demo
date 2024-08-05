@@ -10,15 +10,15 @@ document.getElementById("action").addEventListener("change", function () {
   const sendButton = document.getElementById("sendButton");
   sendButton.style.display = "none";
 
-  if (action === "get-all-users") {
-    sendButton.style.display = "block";
-  } else if (action === "get-all-users-by-params") {
+  if (action === "get-all-users-by-params") {
     document.getElementById("username-container").style.display = "block";
     document.getElementById("address-state-container").style.display = "block";
     document.getElementById("limit-container").style.display = "block";
     document.getElementById("page-container").style.display = "block";
     sendButton.style.display = "block";
-  } else if (action === "get-user-by-id") {
+  } else if (action === "get-all-users-and-relationships") {
+    sendButton.style.display = "block";
+  } else if (action === "get-user-and-relationships-by-id") {
     document.getElementById("user-id-container").style.display = "block";
     sendButton.style.display = "block";
   }
@@ -36,17 +36,17 @@ document
     const action = document.getElementById("action").value;
     let data;
 
-    if (action === "get-all-users") {
-      data = await fetchAllUsers();
-    } else if (action === "get-all-users-by-params") {
+    if (action === "get-all-users-by-params") {
       const username = document.getElementById("username").value;
       const addressState = document.getElementById("address-state").value;
       const limit = document.getElementById("limit").value;
       const page = document.getElementById("page").value;
       data = await fetchAllUsersByParams(username, addressState, limit, page);
-    } else if (action === "get-user-by-id") {
+    } else if (action === "get-all-users-and-relationships") {
+      data = await fetchAllUsersAndRelationships();
+    } else if (action === "get-user-and-relationships-by-id") {
       const userId = document.getElementById("user-id").value;
-      data = await fetchUserById(userId);
+      data = await fetchUserAndRelationshipsById(userId);
     }
 
     initializeGraph(data);
@@ -107,19 +107,6 @@ function layoutConfig(edgesLength) {
   return layoutConfig;
 }
 
-async function fetchAllUsers() {
-  try {
-    const response = await fetch(`/spring-neptune-demo/graph/data`);
-
-    const data = await response.json();
-    console.log("fetchAllUsers data", data);
-
-    return transformGraphData(data);
-  } catch (error) {
-    console.error("Error hitting fetchAllUsers", error);
-  }
-}
-
 async function fetchAllUsersByParams(name, addressState, limit, page) {
   try {
     const response = await fetch(
@@ -135,17 +122,40 @@ async function fetchAllUsersByParams(name, addressState, limit, page) {
   }
 }
 
-async function fetchUserById(userId) {
+async function fetchAllUsersAndRelationships() {
+  try {
+    const response = await fetch(`/spring-neptune-demo/graph/data`);
+
+    const data = await response.json();
+    console.log("fetchAllUsersAndRelationships data", data);
+
+    return transformGraphData(data);
+  } catch (error) {
+    console.error("Error hitting fetchAllUsersAndRelationships", error);
+  }
+}
+
+async function fetchUserAndRelationshipsById(userId) {
   try {
     const response = await fetch(`/spring-neptune-demo/users/${userId}`);
 
     const data = await response.json();
-    console.log("fetchUserById data", data);
+    console.log("fetchUserAndRelationshipsById data", data);
 
     return transformUserData(data);
   } catch (error) {
-    console.error("Error hitting fetchUserById", error);
+    console.error("Error hitting fetchUserAndRelationshipsById", error);
   }
+}
+
+function transformUserData(data) {
+  const output = { elements: { nodes: [], edges: [] } };
+  data.forEach((item) => {
+    const node = parseUserData(item);
+    output.elements.nodes.push(node);
+  });
+
+  return output;
 }
 
 function transformGraphData(data) {
@@ -172,45 +182,6 @@ function transformGraphData(data) {
 
   output.elements.nodes = vertices;
   output.elements.edges = edges;
-
-  return output;
-}
-
-function transformUserData(data) {
-  const output = { elements: { nodes: [], edges: [] } };
-  data.forEach((item) => {
-    const node = parseUserData(item);
-    output.elements.nodes.push(node);
-  });
-
-  return output;
-}
-
-function transformRelationshipData(data) {
-  const output = { elements: { nodes: [], edges: [] } };
-
-  data.forEach((item) => {
-    const source = parseUserData(item.entityOne);
-    const target = parseUserData(item.entityTwo);
-
-    const edge = {
-      data: {
-        id: item.id,
-        source: item.entityOne.id,
-        target: item.entityTwo.id,
-        // label: item.label,
-        relationshipStatus: item.relationshipStatus,
-        relationshipType: item.relationshipType,
-        productLob: item.productLob,
-        productType: item.productType,
-        startDate: item.startDate,
-        endDate: item.endDate,
-      },
-    };
-
-    output.elements.nodes.push(source, target);
-    output.elements.edges.push(edge);
-  });
 
   return output;
 }
