@@ -64,7 +64,10 @@
     </div>
     <div id="graph-container">
       <div id="cy"></div>
-      <div id="tooltip" class="tooltip"></div>
+      <div id="popup" class="popup">
+        <button class="close-btn" onclick="closePopup()">x</button>
+        <div class="popup-content"></div>
+      </div>
     </div>
     <script src="graph.js"></script>
   </body>

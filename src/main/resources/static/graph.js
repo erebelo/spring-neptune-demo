@@ -52,23 +52,6 @@ document
     initializeGraph(data);
   });
 
-function validateForm() {
-  let isValid = true;
-  const userIdContainer = document.getElementById("user-id-container");
-
-  if (
-    userIdContainer.style.display !== "none" &&
-    !document.getElementById("user-id").value
-  ) {
-    document.getElementById("user-id-error").style.display = "block";
-    isValid = false;
-  } else {
-    document.getElementById("user-id-error").style.display = "none";
-  }
-
-  return isValid;
-}
-
 function resetInputFields() {
   document.getElementById("user-id").value = "";
   document.getElementById("username").value = "";
@@ -91,20 +74,28 @@ function resetGraph() {
   cy.fit();
 }
 
+function validateForm() {
+  let isValid = true;
+  const userIdContainer = document.getElementById("user-id-container");
+
+  if (
+    userIdContainer.style.display !== "none" &&
+    !document.getElementById("user-id").value
+  ) {
+    document.getElementById("user-id-error").style.display = "block";
+    isValid = false;
+  } else {
+    document.getElementById("user-id-error").style.display = "none";
+  }
+
+  return isValid;
+}
+
 function layoutConfig(edgesLength) {
   // Determine layout based on the presence of edges
-  const layoutConfig =
-    edgesLength > 0
-      ? {
-          name: "cose",
-          animate: true,
-        }
-      : {
-          name: "random",
-          fit: true,
-        };
-
-  return layoutConfig;
+  return edgesLength > 0
+    ? { name: "cose", animate: true }
+    : { name: "random", fit: true };
 }
 
 async function fetchAllUsersByParams(name, addressState, limit, page) {
@@ -180,15 +171,15 @@ function transformGraphData(data) {
     },
   }));
 
-  output.elements.nodes = vertices;
-  output.elements.edges = edges;
+  output.elements.nodes.push(...vertices);
+  output.elements.edges.push(...edges);
 
   return output;
 }
 
-function parseUserData(vertex) {
-  const address = vertex.address
-    ? Object.entries(vertex.address).reduce((acc, [key, value]) => {
+function parseUserData(data) {
+  const address = data.address
+    ? Object.entries(data.address).reduce((acc, [key, value]) => {
         acc[`address_${key}`] = value;
         return acc;
       }, {})
@@ -196,10 +187,10 @@ function parseUserData(vertex) {
 
   return {
     data: {
-      id: vertex.id,
-      label: "User",
-      username: vertex.username,
-      name: vertex.name,
+      id: data.id,
+      label: data.label,
+      username: data.username,
+      name: data.name,
       ...address,
     },
   };
@@ -213,13 +204,13 @@ async function initializeGraph(data) {
       {
         selector: "node",
         style: {
-          "background-color": "#0074D9",
           label: "data(name)",
           color: "#fff",
+          "background-color": "#0074D9",
           "text-valign": "center",
           "text-halign": "center",
           "text-wrap": "wrap",
-          "text-max-width": "100px", // Adjust the max width as needed
+          "text-max-width": "100px",
           width: (ele) => calculateNodeSize(ele.data("name")),
           height: (ele) => calculateNodeSize(ele.data("name")),
         },
@@ -227,12 +218,12 @@ async function initializeGraph(data) {
       {
         selector: "edge",
         style: {
+          label: "data(label)",
+          color: "#007409",
           width: 2,
           "line-color": "#0074d9",
           "target-arrow-color": "#0074d9",
           "target-arrow-shape": "triangle",
-          // label: "data(label)",
-          color: "#007409",
           "text-rotation": "autorotate",
         },
       },
@@ -240,45 +231,8 @@ async function initializeGraph(data) {
     layout: layoutConfig(data.elements.edges.length),
   });
 
+  addOpenPopupFeature(cy);
   cy.fit();
-  addHoverFeature(cy);
-}
-
-function addHoverFeature(cy) {
-  const tooltip = document.getElementById("tooltip");
-
-  cy.on("mouseover", "node, edge", (event) => {
-    const target = event.target;
-    const position = target.isNode()
-      ? target.renderedPosition()
-      : target.renderedMidpoint();
-    const data = target.data();
-
-    tooltip.style.left = `${position.x + 270}px`;
-    tooltip.style.top = `${position.y + 50}px`;
-
-    // Create HTML content for the tooltip
-    tooltip.innerHTML = `<strong>${
-      target.isNode() ? "User" : "FOLLOW"
-    } Details:</strong><br>${formatData(data)}`;
-    tooltip.style.display = "block";
-  });
-
-  cy.on("mouseout", "node, edge", () => {
-    tooltip.style.display = "none";
-  });
-}
-
-function formatData(data) {
-  return Object.entries(data)
-    .map(([key, value]) => {
-      if (typeof value === "object" && value !== null) {
-        return `<strong>${key}:</strong><br>${formatData(value)}`;
-      } else {
-        return `<strong>${key}:</strong> ${value}`;
-      }
-    })
-    .join("<br>");
 }
 
 function calculateNodeSize(label) {
@@ -288,4 +242,37 @@ function calculateNodeSize(label) {
   const calculatedSize = baseSize + label.length * sizeIncrement;
 
   return Math.min(calculatedSize, maxSize);
+}
+
+function addOpenPopupFeature(cy) {
+  const popup = document.getElementById("popup");
+  const popupContent = document.querySelector(".popup-content");
+
+  cy.on("tap", "node, edge", function (event) {
+    const element = event.target;
+    const elementType = element.isNode() ? "Vertex" : "Edge";
+    const properties = element.data("properties");
+
+    // Create HTML content for the popup
+    let content = `<div class='property-label'>${element.data(
+      "label"
+    )} ${elementType}:</div>`;
+    for (const key in properties) {
+      if (properties.hasOwnProperty(key)) {
+        content += `<div class='property-item'><strong>${key}:</strong> ${properties[key]}</div>`;
+      }
+    }
+
+    // Set content and position of the popup
+    popupContent.innerHTML = content;
+    popup.style.display = "block";
+    popup.style.left = event.renderedPosition.x + "px";
+    popup.style.top = event.renderedPosition.y + "px";
+  });
+
+  function closePopup() {
+    popup.style.display = "none";
+  }
+
+  window.closePopup = closePopup;
 }
