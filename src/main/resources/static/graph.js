@@ -266,13 +266,17 @@ function addOpenPopupFeature(cy) {
     // Set content and position of the popup
     popupContent.innerHTML = content;
     popup.style.display = "block";
-    popup.style.left = event.renderedPosition.x + "px";
-    popup.style.top = event.renderedPosition.y + "px";
+    popup.style.left = `${event.renderedPosition.x}px`;
+    popup.style.top = `${event.renderedPosition.y}px`;
   });
 
-  function closePopup() {
-    popup.style.display = "none";
-  }
+  cy.on("tap", function (event) {
+    if (event.target === cy) {
+      closePopup();
+    }
+  });
+}
 
-  window.closePopup = closePopup;
+function closePopup() {
+  popup.style.display = "none";
 }
