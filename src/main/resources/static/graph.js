@@ -3,24 +3,25 @@ document.getElementById("action").addEventListener("change", function () {
   resetGraph();
 
   const action = this.value;
-  const inputFields = document.querySelectorAll(".input-field");
 
+  const inputFields = document.querySelectorAll(".input-field");
   inputFields.forEach((field) => (field.style.display = "none"));
 
   const sendButton = document.getElementById("sendButton");
-  sendButton.style.display = "none";
 
   if (action === "get-all-users-by-params") {
     document.getElementById("username-container").style.display = "block";
     document.getElementById("address-state-container").style.display = "block";
     document.getElementById("limit-container").style.display = "block";
     document.getElementById("page-container").style.display = "block";
-    sendButton.style.display = "block";
+    sendButton.disabled = false;
   } else if (action === "get-all-users-and-relationships") {
-    sendButton.style.display = "block";
+    sendButton.disabled = false;
   } else if (action === "get-user-and-relationships-by-id") {
     document.getElementById("user-id-container").style.display = "block";
-    sendButton.style.display = "block";
+    sendButton.disabled = false;
+  } else {
+    sendButton.disabled = true;
   }
 });
 
@@ -99,7 +100,7 @@ function layoutConfig(edgesLength) {
         padding: 20,
         animate: true,
         fit: true,
-        boundingBox: { x1: 0, y1: 0, x2: 1000, y2: 600 },
+        boundingBox: { x1: 0, y1: 0, x2: 600, y2: 400 },
       }
     : { name: "random", fit: true };
 }
@@ -113,7 +114,7 @@ async function fetchAllUsersByParams(name, addressState, limit, page) {
     const data = await response.json();
     console.log("fetchAllUsersByParams data", data);
 
-    return transformUserData(data);
+    return transformUserDataList(data);
   } catch (error) {
     console.error("Error hitting fetchAllUsersByParams", error);
   }
@@ -145,16 +146,27 @@ async function fetchUserAndRelationshipsById(userId) {
   }
 }
 
-function transformUserData(data) {
+function transformUserDataList(data) {
   const output = { elements: { nodes: [], edges: [] } };
 
-  if (Array.isArray(data) && data.length > 0) {
+  if (data && Array.isArray(data) && data.length > 0) {
     data.forEach((item) => {
       const node = parseUserData(item);
 
       console.log("node", node);
       output.elements.nodes.push(node);
     });
+  }
+
+  return output;
+}
+
+function transformUserData(data) {
+  const output = { elements: { nodes: [], edges: [] } };
+
+  if (data && (!data.hasOwnProperty("status") || data.status !== "NOT_FOUND")) {
+    const node = parseUserData(data);
+    output.elements.nodes.push(node);
   }
 
   return output;
@@ -268,6 +280,7 @@ function calculateNodeSize(label) {
 function addOpenPopupFeature(cy) {
   const popup = document.getElementById("popup");
   const popupContent = document.querySelector(".popup-content");
+  const graphContainer = document.getElementById("graph-container");
 
   cy.on("tap", "node, edge", function (event) {
     const element = event.target;
@@ -291,8 +304,19 @@ function addOpenPopupFeature(cy) {
     popup.style.top = `${event.renderedPosition.y}px`;
   });
 
+  // Close popup when tapping on cy background
   cy.on("tap", function (event) {
     if (event.target === cy) {
+      closePopup();
+    }
+  });
+
+  // Close popup when tapping on graph container
+  document.addEventListener("click", function (event) {
+    if (
+      !popup.contains(event.target) &&
+      !graphContainer.contains(event.target)
+    ) {
       closePopup();
     }
   });

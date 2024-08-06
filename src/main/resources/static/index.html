@@ -10,10 +10,16 @@
     <div id="form-container">
       <label for="action">Select an API endpoint</label>
       <select id="action">
-        <option value="">--Please select an API--</option>
-        <option value="get-all-users-by-params">Get all users by name and state</option>
-        <option value="get-all-users-and-relationships">Get all users and relationships</option>
-        <option value="get-user-and-relationships-by-id">Get user and relationships by id</option>
+        <option value="">-- Please select an API --</option>
+        <option value="get-all-users-by-params">
+          Get all users by name and state
+        </option>
+        <option value="get-all-users-and-relationships">
+          Get all users and relationships
+        </option>
+        <option value="get-user-and-relationships-by-id">
+          Get user and relationships by id
+        </option>
       </select>
       <div id="input-fields">
         <div class="input-field" id="user-id-container">
@@ -25,18 +31,14 @@
         </div>
         <div class="input-field" id="username-container">
           <label for="username">Name</label>
-          <input
-            type="text"
-            id="username"
-            placeholder="Enter Name"
-          />
+          <input type="text" id="username" placeholder="Enter Name" />
         </div>
         <div class="input-field" id="address-state-container">
           <label for="address-state">Address State</label>
           <input
-                  type="text"
-                  id="address-state"
-                  placeholder="Enter Address State"
+            type="text"
+            id="address-state"
+            placeholder="Enter Address State"
           />
         </div>
         <div class="input-field" id="limit-container">
@@ -60,7 +62,7 @@
           />
         </div>
       </div>
-      <button id="sendButton">Send</button>
+      <button id="sendButton" disabled>Send</button>
     </div>
     <div id="graph-container">
       <div id="cy"></div>

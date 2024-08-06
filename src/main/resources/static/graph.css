@@ -87,9 +87,24 @@ body {
   background-color: #005bb5;
 }
 
+#form-container button:disabled {
+  background-color: #d3d3d3;
+  color: #a0a0a0;
+  cursor: not-allowed;
+  border: 1px solid #ccc;
+}
+
+#form-container button:disabled:hover {
+  background-color: #d3d3d3;
+  color: #a0a0a0;
+}
+
 .error-message {
-  color: red;
   display: none;
+  color: red;
+  padding: 0px 3px;
+  font-size: small;
+  margin-top: -5px;
 }
 
 .popup {
