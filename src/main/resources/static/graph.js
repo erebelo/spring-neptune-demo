@@ -147,10 +147,15 @@ async function fetchUserAndRelationshipsById(userId) {
 
 function transformUserData(data) {
   const output = { elements: { nodes: [], edges: [] } };
-  data.forEach((item) => {
-    const node = parseUserData(item);
-    output.elements.nodes.push(node);
-  });
+
+  if (Array.isArray(data) && data.length > 0) {
+    data.forEach((item) => {
+      const node = parseUserData(item);
+
+      console.log("node", node);
+      output.elements.nodes.push(node);
+    });
+  }
 
   return output;
 }
@@ -194,10 +199,16 @@ function parseUserData(data) {
   return {
     data: {
       id: data.id,
-      label: data.label,
-      username: data.username,
+      label: "User",
       name: data.name,
-      ...address,
+      properties: {
+        id: data.id,
+        label: "User",
+        env: "dev",
+        username: data.username,
+        name: data.name,
+        ...address,
+      },
     },
   };
 }
