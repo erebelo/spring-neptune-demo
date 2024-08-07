@@ -152,8 +152,6 @@ function transformUserDataList(data) {
   if (data && Array.isArray(data) && data.length > 0) {
     data.forEach((item) => {
       const node = parseUserData(item);
-
-      console.log("node", node);
       output.elements.nodes.push(node);
     });
   }
@@ -165,8 +163,33 @@ function transformUserData(data) {
   const output = { elements: { nodes: [], edges: [] } };
 
   if (data && (!data.hasOwnProperty("status") || data.status !== "NOT_FOUND")) {
-    const node = parseUserData(data);
-    output.elements.nodes.push(node);
+    let nodes = [],
+      edges = [];
+
+    nodes.push(parseUserData(data));
+
+    if (
+      data.followers &&
+      Array.isArray(data.followers) &&
+      data.followers.length > 0
+    ) {
+      data.followers.forEach((item) => {
+        edges.push(parseFollowData(item, "FOLLOWERS", data.id));
+      });
+    }
+
+    if (
+      data.following &&
+      Array.isArray(data.following) &&
+      data.following.length > 0
+    ) {
+      data.following.forEach((item) => {
+        edges.push(parseFollowData(item, "FOLLOWING", data.id));
+      });
+    }
+
+    output.elements.nodes.push(nodes);
+    output.elements.edges.push(edges);
   }
 
   return output;
@@ -220,6 +243,28 @@ function parseUserData(data) {
         username: data.username,
         name: data.name,
         ...address,
+      },
+    },
+  };
+}
+
+function parseFollowData(data, direction, mainUserId) {
+  const from = direction === "FOLLOWING" ? mainUserId : data.user.id;
+  const to = direction === "FOLLOWING" ? data.user.id : mainUserId;
+
+  return {
+    data: {
+      id: data.id,
+      label: "FOLLOW",
+      source: from,
+      target: to,
+      properties: {
+        id: data.id,
+        label: "FOLLOW",
+        env: "dev",
+        status: data.status,
+        startPeriod: data.startPeriod,
+        endPeriod: data.endPeriod,
       },
     },
   };
