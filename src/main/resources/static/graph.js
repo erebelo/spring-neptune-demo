@@ -163,33 +163,54 @@ function transformUserData(data) {
   const output = { elements: { nodes: [], edges: [] } };
 
   if (data && (!data.hasOwnProperty("status") || data.status !== "NOT_FOUND")) {
-    let nodes = [],
-      edges = [];
+    let verticesMap = new Map(),
+      edgesMap = new Map();
 
-    nodes.push(parseUserData(data));
+    const checkAndAddVertex = (data) => {
+      let key = data.id;
+      if (!verticesMap.has(key)) {
+        const vertex = parseUserData(data);
+        verticesMap.set(key, vertex);
+      }
+    };
 
+    const checkAndAddEdge = (data, direction, mainUserId) => {
+      let key = data.id;
+      if (!edgesMap.has(key)) {
+        const edge = parseFollowData(data, direction, mainUserId);
+        edgesMap.set(key, edge);
+      }
+    };
+
+    // Add the main user vertex
+    checkAndAddVertex(data);
+
+    // Process followers
     if (
       data.followers &&
       Array.isArray(data.followers) &&
       data.followers.length > 0
     ) {
       data.followers.forEach((item) => {
-        edges.push(parseFollowData(item, "FOLLOWERS", data.id));
+        checkAndAddVertex(item.user);
+        checkAndAddEdge(item, "FOLLOWERS", data.id);
       });
     }
 
+    // Process following
     if (
       data.following &&
       Array.isArray(data.following) &&
       data.following.length > 0
     ) {
       data.following.forEach((item) => {
-        edges.push(parseFollowData(item, "FOLLOWING", data.id));
+        checkAndAddVertex(item.user);
+        checkAndAddEdge(item, "FOLLOWING", data.id);
       });
     }
 
-    output.elements.nodes.push(nodes);
-    output.elements.edges.push(edges);
+    output.elements.nodes = Array.from(verticesMap.values());
+    output.elements.edges = Array.from(edgesMap.values());
   }
 
   return output;
@@ -265,6 +286,8 @@ function parseFollowData(data, direction, mainUserId) {
         status: data.status,
         startPeriod: data.startPeriod,
         endPeriod: data.endPeriod,
+        from: from,
+        to: to,
       },
     },
   };
@@ -294,7 +317,7 @@ async function initializeGraph(data) {
         style: {
           label: "data(label)",
           color: "#000000",
-          width: 2,
+          width: 3,
           "curve-style": "bezier",
           "target-arrow-shape": "triangle",
           "target-arrow-color": "#0074d9",
