@@ -92,7 +92,6 @@
             <artifactId>tinkergraph-gremlin</artifactId>
             <version>${tinkergraph.gremlin.version}</version>
         </dependency>
-        <!--Swagger -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
