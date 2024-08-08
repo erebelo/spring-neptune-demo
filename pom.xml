@@ -20,11 +20,40 @@
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <commons.collections4.version>4.4</commons.collections4.version>
+        <commons.configuration2.version>2.10.1</commons.configuration2.version>
+        <ion.java.version>1.11.8</ion.java.version>
         <gremlin.driver.version>3.7.2</gremlin.driver.version>
         <sig4.signer.version>2.4.0</sig4.signer.version>
         <tinkergraph.gremlin.version>3.7.2</tinkergraph.gremlin.version>
+        <springdoc.openapi.version>2.6.0</springdoc.openapi.version>
+        <lombok.version>1.18.32</lombok.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
     </properties>
+
+    <!-- Transitive dependencies -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- Fixes gremlin-driver vulnerability for commons-collections versions prior to 4.3 -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>${commons.collections4.version}</version>
+            </dependency>
+            <!-- Fixes gremlin-driver vulnerability for commons-configuration versions prior to 2.10.1 -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-configuration2</artifactId>
+                <version>${commons.configuration2.version}</version>
+            </dependency>
+            <!-- Fixes amazon-neptune-sigv4-signer vulnerability for ion-java versions prior to 1.10.5 -->
+            <dependency>
+                <groupId>com.amazon.ion</groupId>
+                <artifactId>ion-java</artifactId>
+                <version>${ion.java.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -35,11 +64,27 @@
             <groupId>org.apache.tinkerpop</groupId>
             <artifactId>gremlin-driver</artifactId>
             <version>${gremlin.driver.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-collections</groupId>
+                    <artifactId>commons-collections</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-configuration</groupId>
+                    <artifactId>commons-configuration</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>amazon-neptune-sigv4-signer</artifactId>
             <version>${sig4.signer.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>software.amazon.ion</groupId>
+                    <artifactId>ion-java</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- Memory graph database -->
         <dependency>
@@ -47,10 +92,16 @@
             <artifactId>tinkergraph-gremlin</artifactId>
             <version>${tinkergraph.gremlin.version}</version>
         </dependency>
+        <!--Swagger -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc.openapi.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <optional>true</optional>
+            <version>${lombok.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mapstruct</groupId>
