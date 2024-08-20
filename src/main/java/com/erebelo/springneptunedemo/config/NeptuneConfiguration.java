@@ -70,9 +70,9 @@ public class NeptuneConfiguration {
     @Bean
     public GraphTraversalSource graphTraversalSource(RemoteConnection remoteConnection, PartitionStrategy partitionStrategy) {
         if (useEmbedded) {
-            return traversal().withEmbedded(TinkerGraph.open()).withStrategies(partitionStrategy());
+            return traversal().withEmbedded(TinkerGraph.open())/* TODO .withStrategies(partitionStrategy()) */;
         }
 
-        return traversal().withRemote(remoteConnection).withStrategies(partitionStrategy);
+        return traversal().withRemote(remoteConnection)/* TODO .withStrategies(partitionStrategy) */;
     }
 }

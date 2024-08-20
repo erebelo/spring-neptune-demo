@@ -16,6 +16,7 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -24,6 +25,8 @@ import static com.erebelo.springneptunedemo.util.GraphUtil.mapVertexAndEdgeToGra
 import static com.erebelo.springneptunedemo.util.GraphUtil.updateVertexAndEdgeProperties;
 import static com.erebelo.springneptunedemo.util.QueryUtil.calculatePaginationIndexes;
 import static com.erebelo.springneptunedemo.util.QueryUtil.isValidProperty;
+import static org.apache.tinkerpop.gremlin.process.traversal.Merge.onCreate;
+import static org.apache.tinkerpop.gremlin.process.traversal.Merge.onMatch;
 import static org.apache.tinkerpop.gremlin.process.traversal.TextP.regex;
 
 @Repository
@@ -34,6 +37,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     private static final String USER_VERTEX_LABEL = "User";
     private static final String FOLLOW_EDGE_LABEL = "FOLLOW";
+    private static final String USERNAME_PROPERTY = "username";
     private static final String NAME_PROPERTY = "name";
     private static final String ADDRESS_STATE_PROPERTY = "address_state";
     private static final String REGEX_CASE_INSENSITIVE = "(?i)";
@@ -41,6 +45,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     private static final String USERS_NOT_FOUND_ERROR_MESSAGE = "Users not found";
     private static final String USER_NOT_FOUND_ERROR_MESSAGE = "User not found by id: ";
+    private static final String USER_ALREADY_EXISTS_ERROR_MESSAGE = "User already exists by username: ";
     private static final String EXISTING_EDGE_ERROR_MESSAGE = "Existing edge found from user id: %s to user id: %s";
     private static final String NO_EXISTING_EDGE_ERROR_MESSAGE = "No existing edge found from user id: %s to user id: %s";
 
@@ -105,9 +110,15 @@ public class UserRepositoryImpl implements UserRepository {
                 .toList();
     }
 
+    /*
+    Use `mergeV()` to enforce the constraint on the username or any other properties.
+    For insertion without constraints, consider using `g.addV(USER_VERTEX_LABEL).property(T.id, UUID.randomUUID().toString())`.
+     */
     @Override
     public UserNode insert(UserNode node) {
-        GraphTraversal<Vertex, Vertex> gtVertex = g.addV(USER_VERTEX_LABEL).property(T.id, UUID.randomUUID().toString());
+        GraphTraversal<Vertex, Vertex> gtVertex = g.mergeV(Collections.singletonMap(USERNAME_PROPERTY, node.getUsername()))
+                .option(onCreate, Map.of(T.label, USER_VERTEX_LABEL, T.id, UUID.randomUUID().toString()))
+                .option(onMatch, __.fail(USER_ALREADY_EXISTS_ERROR_MESSAGE + node.getUsername()));
         updateVertexAndEdgeProperties(gtVertex, node, HttpMethod.POST.name());
 
         GraphTraversal<Vertex, Map<Object, Object>> vertexTraversal = gtVertex.elementMap();
