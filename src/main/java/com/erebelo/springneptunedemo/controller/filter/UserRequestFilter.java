@@ -31,7 +31,7 @@ public class UserRequestFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain) throws IOException {
         try {
             String requestBody = readRequestBody(request);
-            String modifiedBody = modifyNameAttribute(requestBody);
+            String modifiedBody = modifyUsernameAttribute(requestBody, HttpMethod.PATCH.matches(request.getMethod()));
 
             // Wrap the request with the modified body
             CustomHttpServletRequest modifiedRequest = new CustomHttpServletRequest(request, modifiedBody);
@@ -58,11 +58,12 @@ public class UserRequestFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String method = request.getMethod();
         String path = request.getRequestURI();
+        String regexPattern = "^" + USER_API_PATH + "/[^/]+$";
 
-        boolean isPostToUsers = HttpMethod.POST.matches(method) && path.equals(USER_API_PATH);
-        boolean isPutToUser = HttpMethod.PUT.matches(method) && path.matches(USER_API_PATH + "/\\d+");
+        boolean isPostUsers = HttpMethod.POST.matches(method) && path.equals(USER_API_PATH);
+        boolean isPutOrPatchUsers = (HttpMethod.PUT.matches(method) || HttpMethod.PATCH.matches(method)) && path.matches(regexPattern);
 
-        return !(isPostToUsers || isPutToUser);
+        return !(isPostUsers || isPutOrPatchUsers);
     }
 
     private String readRequestBody(HttpServletRequest request) throws IOException {
@@ -76,23 +77,31 @@ public class UserRequestFilter extends OncePerRequestFilter {
         return requestBody.toString();
     }
 
-    private String modifyNameAttribute(String body) throws IOException {
+    private String modifyUsernameAttribute(String body, boolean isPatchRequest) throws IOException {
         JsonNode jsonNode = objectMapper.readTree(body);
-        BadRequestException exception = new BadRequestException("[username is mandatory]");
+        JsonNode usernameNode = jsonNode.get(USERNAME_PROPERTY);
 
-        if (!jsonNode.has(USERNAME_PROPERTY)) {
-            throw exception;
+        if (isPatchRequest) {
+            if (usernameNode != null && isUsernameInvalid(usernameNode.asText())) {
+                throw new BadRequestException("[username cannot be blank or contain any whitespace characters]");
+            }
+        } else if (usernameNode == null || isUsernameInvalid(usernameNode.asText())) {
+            throw new BadRequestException("[username is mandatory and cannot be blank or contain any whitespace characters]");
         }
 
-        String name = jsonNode.get(USERNAME_PROPERTY).asText().trim();
-        if (name.isBlank()) {
-            throw exception;
-        }
-
-        if (name.charAt(0) != AT_SIGN) {
-            ((ObjectNode) jsonNode).put(USERNAME_PROPERTY, AT_SIGN + name);
+        // Need to check if username is not null as it may be null for PATCH request method
+        if (usernameNode != null) {
+            String username = usernameNode.asText();
+            if (username.charAt(0) != AT_SIGN) {
+                username = AT_SIGN + username;
+            }
+            ((ObjectNode) jsonNode).put(USERNAME_PROPERTY, username.toLowerCase());
         }
 
         return objectMapper.writeValueAsString(jsonNode);
+    }
+
+    private boolean isUsernameInvalid(String username) {
+        return username.isEmpty() || username.contains(" ") || username.equals("null");
     }
 }

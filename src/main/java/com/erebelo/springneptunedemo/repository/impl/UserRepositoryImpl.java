@@ -16,7 +16,6 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -40,8 +39,8 @@ public class UserRepositoryImpl implements UserRepository {
     private static final String USERNAME_PROPERTY = "username";
     private static final String NAME_PROPERTY = "name";
     private static final String ADDRESS_STATE_PROPERTY = "address_state";
-    private static final String REGEX_CASE_INSENSITIVE = "(?i)";
-    private static final String ANY_PROPERTY = ".*";
+    private static final String REGEX_LIKE_CASE_INSENSITIVE = "(?i)";
+    private static final String REGEX_CASE_INSENSITIVE = "^(?i)%s$";
 
     private static final String USERS_NOT_FOUND_ERROR_MESSAGE = "Users not found";
     private static final String USER_NOT_FOUND_ERROR_MESSAGE = "User not found by id: ";
@@ -53,12 +52,14 @@ public class UserRepositoryImpl implements UserRepository {
     public List<UserNode> findAll(String name, String addressState, Integer limit, Integer page) {
         GraphTraversal<Vertex, Vertex> gtVertex = g.V().hasLabel(USER_VERTEX_LABEL);
 
+        // Apply a case-insensitive regex filter on 'name' property, which mimics a LIKE query
         if (isValidProperty(name)) {
-            gtVertex.has(NAME_PROPERTY, regex(REGEX_CASE_INSENSITIVE + ANY_PROPERTY + name + ANY_PROPERTY));
+            gtVertex.has(NAME_PROPERTY, regex(REGEX_LIKE_CASE_INSENSITIVE + name));
         }
 
+        // Apply a case-insensitive regex filter on 'address_state' property
         if (isValidProperty(addressState)) {
-            gtVertex.has(ADDRESS_STATE_PROPERTY, regex(REGEX_CASE_INSENSITIVE + addressState));
+            gtVertex.has(ADDRESS_STATE_PROPERTY, regex(String.format(REGEX_CASE_INSENSITIVE, addressState)));
         }
 
         // Calculate the start and end indexes for pagination
@@ -116,7 +117,7 @@ public class UserRepositoryImpl implements UserRepository {
      */
     @Override
     public UserNode insert(UserNode node) {
-        GraphTraversal<Vertex, Vertex> gtVertex = g.mergeV(Collections.singletonMap(USERNAME_PROPERTY, node.getUsername()))
+        GraphTraversal<Vertex, Vertex> gtVertex = g.mergeV(Map.of(T.label, USER_VERTEX_LABEL, USERNAME_PROPERTY, node.getUsername()))
                 .option(onCreate, Map.of(T.label, USER_VERTEX_LABEL, T.id, UUID.randomUUID().toString()))
                 .option(onMatch, __.fail(USER_ALREADY_EXISTS_ERROR_MESSAGE + node.getUsername()));
         updateVertexAndEdgeProperties(gtVertex, node, HttpMethod.POST.name());

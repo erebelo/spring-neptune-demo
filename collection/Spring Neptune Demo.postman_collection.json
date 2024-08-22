@@ -60,7 +60,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/spring-neptune-demo/users?name=Eduardo&addressState=N&limit=20&page=1",
+							"raw": "http://localhost:8080/spring-neptune-demo/users?name=edu&addressState=ny&limit=20&page=1",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -73,11 +73,11 @@
 							"query": [
 								{
 									"key": "name",
-									"value": "Eduardo"
+									"value": "edu"
 								},
 								{
 									"key": "addressState",
-									"value": "N"
+									"value": "ny"
 								},
 								{
 									"key": "limit",
