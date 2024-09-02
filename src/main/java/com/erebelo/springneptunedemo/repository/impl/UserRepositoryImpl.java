@@ -5,10 +5,15 @@ import com.erebelo.springneptunedemo.domain.graph.node.UserNode;
 import com.erebelo.springneptunedemo.exception.model.ConflictException;
 import com.erebelo.springneptunedemo.exception.model.NotFoundException;
 import com.erebelo.springneptunedemo.repository.UserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.tinkerpop.gremlin.driver.exception.ResponseException;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
+import org.apache.tinkerpop.gremlin.process.traversal.step.sideEffect.FailStep;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.T;
@@ -19,15 +24,18 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletionException;
 
 import static com.erebelo.springneptunedemo.util.GraphUtil.mapVertexAndEdgeToGraphObject;
 import static com.erebelo.springneptunedemo.util.GraphUtil.updateVertexAndEdgeProperties;
+import static com.erebelo.springneptunedemo.util.ObjectMapperUtil.objectMapper;
 import static com.erebelo.springneptunedemo.util.QueryUtil.calculatePaginationIndexes;
 import static com.erebelo.springneptunedemo.util.QueryUtil.isValidProperty;
 import static org.apache.tinkerpop.gremlin.process.traversal.Merge.onCreate;
 import static org.apache.tinkerpop.gremlin.process.traversal.Merge.onMatch;
 import static org.apache.tinkerpop.gremlin.process.traversal.TextP.regex;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class UserRepositoryImpl implements UserRepository {
@@ -112,18 +120,39 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     /*
-    Use `mergeV()` to enforce the constraint on the username or any other properties.
+    Use `mergeV()` to enforce the constraint on properties with better execution performance.
     For insertion without constraints, consider using `g.addV(USER_VERTEX_LABEL).property(T.id, UUID.randomUUID().toString())`.
      */
     @Override
     public UserNode insert(UserNode node) {
-        GraphTraversal<Vertex, Vertex> gtVertex = g.mergeV(Map.of(T.label, USER_VERTEX_LABEL, USERNAME_PROPERTY, node.getUsername()))
-                .option(onCreate, Map.of(T.label, USER_VERTEX_LABEL, T.id, UUID.randomUUID().toString()))
-                .option(onMatch, __.fail(USER_ALREADY_EXISTS_ERROR_MESSAGE + node.getUsername()));
-        updateVertexAndEdgeProperties(gtVertex, node, HttpMethod.POST.name());
+        try {
+            GraphTraversal<Vertex, Vertex> gtVertex = g.mergeV(Map.of(T.label, USER_VERTEX_LABEL, USERNAME_PROPERTY, node.getUsername()))
+                    .option(onCreate, Map.of(T.label, USER_VERTEX_LABEL, T.id, UUID.randomUUID().toString()))
+                    .option(onMatch, __.fail(USER_ALREADY_EXISTS_ERROR_MESSAGE + node.getUsername()));
+            updateVertexAndEdgeProperties(gtVertex, node, HttpMethod.POST.name());
 
-        GraphTraversal<Vertex, Map<Object, Object>> vertexTraversal = gtVertex.elementMap();
-        return mapVertexAndEdgeToGraphObject(vertexTraversal.next(), UserNode.class);
+            GraphTraversal<Vertex, Map<Object, Object>> vertexTraversal = gtVertex.elementMap();
+            return mapVertexAndEdgeToGraphObject(vertexTraversal.next(), UserNode.class);
+
+        } catch (CompletionException e) {
+            // AWS Neptune processes Gremlin queries asynchronously, often resulting in CompletionException when fail() is invoked
+            if (e.getCause() instanceof ResponseException responseException) {
+                try {
+                    Map<String, Object> errorProperties = objectMapper.readValue(responseException.getMessage(), new TypeReference<>() {
+                    });
+                    log.error("A constraint error occurred while creating the entity", e);
+                    throw new ConflictException((String) errorProperties.get("message"));
+                } catch (JsonProcessingException jsonProcessingException) {
+                    log.error("Failed to parse ResponseException message", jsonProcessingException);
+                }
+            }
+            log.error("Gremlin query failed", e);
+            throw e;
+        } catch (FailStep.FailException e) {
+            // TinkerGraph processes Gremlin queries synchronously locally, resulting in FailStep.FailException when fail() is invoked
+            log.error("A constraint error occurred while creating the entity", e);
+            throw new ConflictException(e.getMessage());
+        }
     }
 
     @Override
@@ -156,6 +185,7 @@ public class UserRepositoryImpl implements UserRepository {
         g.V(vertex.id()).drop().iterate();
     }
 
+    // TODO Addapt it to mergeE()
     @Override
     public FollowEdge createEdge(String fromId, String toId, FollowEdge edge) {
         // Retrieve vertex properties

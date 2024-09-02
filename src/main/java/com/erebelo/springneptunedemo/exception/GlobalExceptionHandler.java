@@ -6,7 +6,6 @@ import com.erebelo.springneptunedemo.exception.model.NotFoundException;
 import com.erebelo.springneptunedemo.exception.model.UnprocessableEntityException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tinkerpop.gremlin.process.traversal.step.sideEffect.FailStep;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -96,13 +95,6 @@ public class GlobalExceptionHandler {
         }
 
         return parseExceptionMessage(HttpStatus.BAD_REQUEST, errorMessage);
-    }
-
-    @ResponseBody
-    @ExceptionHandler(FailStep.FailException.class)
-    public ResponseEntity<ExceptionResponse> handleFailException(FailStep.FailException exception) {
-        log.error("FailException thrown:", exception);
-        return parseExceptionMessage(HttpStatus.CONFLICT, exception.getMessage());
     }
 
     @ExceptionHandler(BadRequestException.class)
