@@ -161,6 +161,8 @@ public class UserRepositoryImpl implements UserRepository {
     public UserNode update(String id, UserNode node) {
         Vertex vertex = retrieveVertexById(id);
 
+        // TODO check if username is different from previously persisted, and if so, check if is not in use it since it must be unique
+
         GraphTraversal<Vertex, Vertex> gtVertex = g.V(vertex.id());
         updateVertexAndEdgeProperties(gtVertex, node, HttpMethod.PUT.name());
 
@@ -172,6 +174,8 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public UserNode patch(String id, Map<String, Object> requestMap) {
         Vertex vertex = retrieveVertexById(id);
+
+        // TODO check if username is different from previously persisted, and if so, check if is not in use it since it must be unique
 
         GraphTraversal<Vertex, Vertex> gtVertex = g.V(vertex.id());
         updateVertexAndEdgeProperties(gtVertex, requestMap, HttpMethod.PATCH.name());
