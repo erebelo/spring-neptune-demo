@@ -27,10 +27,15 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.util.List;
 import java.util.Map;
 
+import static com.erebelo.springneptunedemo.constant.BusinessConstant.MERGE_PATCH_MEDIA_TYPE;
+import static com.erebelo.springneptunedemo.constant.BusinessConstant.USERS_FOLLOW_PATH;
+import static com.erebelo.springneptunedemo.constant.BusinessConstant.USERS_PATH;
+import static com.erebelo.springneptunedemo.constant.BusinessConstant.USERS_UNFOLLOW_PATH;
+
 @Slf4j
 @Validated
 @RestController
-@RequestMapping("users")
+@RequestMapping(USERS_PATH)
 @RequiredArgsConstructor
 public class UserController {
 
@@ -66,7 +71,7 @@ public class UserController {
         return ResponseEntity.ok(service.update(id, request));
     }
 
-    @PatchMapping(value = "/{id}", consumes = "application/merge-patch+json", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PatchMapping(value = "/{id}", consumes = MERGE_PATCH_MEDIA_TYPE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResponse> patch(@PathVariable String id, @Valid @RequestBody Map<String, Object> requestMap) {
         log.info("Patching user by id: {} {}", id, requestMap.toString());
         return ResponseEntity.ok(service.patch(id, requestMap));
@@ -79,14 +84,14 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{fromId}/follow/{toId}")
+    @PostMapping(USERS_FOLLOW_PATH)
     public ResponseEntity<FollowResponse> follow(@PathVariable String fromId, @PathVariable String toId,
             @Valid @RequestBody FollowRequest request) {
         log.info("Creating FOLLOW edge from user id: {} to user id: {} by object: {}", fromId, toId, request);
         return ResponseEntity.ok(service.follow(fromId, toId, request));
     }
 
-    @DeleteMapping("/{fromId}/unfollow/{toId}")
+    @DeleteMapping(USERS_UNFOLLOW_PATH)
     public ResponseEntity<Void> unfollow(@PathVariable String fromId, @PathVariable String toId) {
         log.info("User id: {} unfollowing user id: {}", fromId, toId);
         service.unfollow(fromId, toId);

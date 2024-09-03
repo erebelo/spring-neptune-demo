@@ -16,13 +16,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.erebelo.springneptunedemo.constant.BusinessConstant.GRAPH_DATA_PATH;
+import static com.erebelo.springneptunedemo.constant.BusinessConstant.GRAPH_PATH;
 import static com.erebelo.springneptunedemo.util.ObjectMapperUtil.objectMapper;
 
 @Slf4j
 @RestController
 @Profile("local")
 @RequiredArgsConstructor
-@RequestMapping("graph")
+@RequestMapping(GRAPH_PATH)
 public class GraphController {
 
     private final GraphTraversalSource g;
@@ -32,7 +34,7 @@ public class GraphController {
     private static final String FROM_KEY = "from";
     private static final String TO_KEY = "to";
 
-    @GetMapping(path = "/data", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = GRAPH_DATA_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> getGraphData() {
         log.info("Retrieving all vertices and edges");
 

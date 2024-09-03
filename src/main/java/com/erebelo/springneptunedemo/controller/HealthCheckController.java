@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.erebelo.springneptunedemo.constant.BusinessConstant.HEALTH_CHECK_PATH;
+
 @Slf4j
 @RestController
-@RequestMapping("health-check")
+@RequestMapping(HEALTH_CHECK_PATH)
 public class HealthCheckController {
 
     @GetMapping(produces = MediaType.TEXT_PLAIN_VALUE)
