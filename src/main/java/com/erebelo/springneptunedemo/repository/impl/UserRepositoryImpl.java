@@ -142,17 +142,17 @@ public class UserRepositoryImpl implements UserRepository {
                 try {
                     Map<String, Object> errorProperties = objectMapper.readValue(responseException.getMessage(), new TypeReference<>() {
                     });
-                    log.error(USER_CONSTRAINT_ERROR_MESSAGE, e);
+                    log.error(USER_CONSTRAINT_ERROR_MESSAGE);
                     throw new ConflictException((String) errorProperties.get("message"));
                 } catch (JsonProcessingException jsonProcessingException) {
                     log.error(JSON_PROCESSING_ERROR_MESSAGE, jsonProcessingException);
                 }
             }
-            log.error(GREMLIN_QUERY_ERROR_MESSAGE, e);
+            log.error(GREMLIN_QUERY_ERROR_MESSAGE);
             throw e;
         } catch (FailStep.FailException e) {
             // TinkerGraph processes Gremlin queries synchronously locally, resulting in FailStep.FailException when fail() is invoked
-            log.error(USER_CONSTRAINT_ERROR_MESSAGE, e);
+            log.error(USER_CONSTRAINT_ERROR_MESSAGE);
             throw new ConflictException(e.getMessage());
         }
     }
@@ -228,17 +228,17 @@ public class UserRepositoryImpl implements UserRepository {
                 try {
                     Map<String, Object> errorProperties = objectMapper.readValue(responseException.getMessage(), new TypeReference<>() {
                     });
-                    log.error(EDGE_CONSTRAINT_ERROR_MESSAGE, e);
+                    log.error(EDGE_CONSTRAINT_ERROR_MESSAGE);
                     throw new ConflictException((String) errorProperties.get("message"));
                 } catch (JsonProcessingException jsonProcessingException) {
                     log.error(JSON_PROCESSING_ERROR_MESSAGE, jsonProcessingException);
                 }
             }
-            log.error(GREMLIN_QUERY_ERROR_MESSAGE, e);
+            log.error(GREMLIN_QUERY_ERROR_MESSAGE);
             throw e;
         } catch (FailStep.FailException e) {
             // TinkerGraph processes Gremlin queries synchronously locally, resulting in FailStep.FailException when fail() is invoked
-            log.error(EDGE_CONSTRAINT_ERROR_MESSAGE, e);
+            log.error(EDGE_CONSTRAINT_ERROR_MESSAGE);
             throw new ConflictException(e.getMessage());
         }
     }
