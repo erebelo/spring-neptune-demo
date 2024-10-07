@@ -1,5 +1,7 @@
 package com.erebelo.springneptunedemo.service.impl;
 
+import static com.erebelo.springneptunedemo.util.ObjectMapperUtil.objectMapper;
+
 import com.erebelo.springneptunedemo.domain.graph.node.UserAddress;
 import com.erebelo.springneptunedemo.domain.request.FollowRequest;
 import com.erebelo.springneptunedemo.domain.request.UserAddressRequest;
@@ -10,15 +12,12 @@ import com.erebelo.springneptunedemo.exception.model.BadRequestException;
 import com.erebelo.springneptunedemo.mapper.UserMapper;
 import com.erebelo.springneptunedemo.repository.UserRepository;
 import com.erebelo.springneptunedemo.service.UserService;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
-
-import java.util.List;
-import java.util.Map;
-
-import static com.erebelo.springneptunedemo.util.ObjectMapperUtil.objectMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -60,7 +59,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse update(String id, UserRequest request) {
-        // Objects nested in the request dto classes must be instantiated for the update request to work properly
+        // Objects nested in the request dto classes must be instantiated for the update
+        // request to work properly
         if (request.getAddress() == null) {
             request.setAddress(new UserAddressRequest());
         }

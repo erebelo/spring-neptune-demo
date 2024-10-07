@@ -4,10 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.text.SimpleDateFormat;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-
-import java.text.SimpleDateFormat;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ObjectMapperUtil {
@@ -22,7 +21,8 @@ public final class ObjectMapperUtil {
         // Register JavaTimeModule for LocalDate serialization/deserialization
         objectMapper.registerModule(new JavaTimeModule());
 
-        // Set the ObjectMapper to include all properties during serialization, even if they are null or have default values
+        // Set the ObjectMapper to include all properties during serialization,
+        // even if they are null or have default values
         objectMapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
 
         // Configure the date format for LocalDate

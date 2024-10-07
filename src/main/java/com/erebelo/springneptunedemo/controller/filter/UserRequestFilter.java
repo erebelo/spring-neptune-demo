@@ -1,5 +1,7 @@
 package com.erebelo.springneptunedemo.controller.filter;
 
+import static com.erebelo.springneptunedemo.util.ObjectMapperUtil.objectMapper;
+
 import com.erebelo.springneptunedemo.exception.ExceptionResponse;
 import com.erebelo.springneptunedemo.exception.model.BadRequestException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -7,18 +9,15 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-
-import static com.erebelo.springneptunedemo.util.ObjectMapperUtil.objectMapper;
 
 public class UserRequestFilter extends OncePerRequestFilter {
 
@@ -61,14 +60,16 @@ public class UserRequestFilter extends OncePerRequestFilter {
         String regexPattern = "^" + USER_API_PATH + "/[^/]+$";
 
         boolean isPostUsers = HttpMethod.POST.matches(method) && path.equals(USER_API_PATH);
-        boolean isPutOrPatchUsers = (HttpMethod.PUT.matches(method) || HttpMethod.PATCH.matches(method)) && path.matches(regexPattern);
+        boolean isPutOrPatchUsers = (HttpMethod.PUT.matches(method) || HttpMethod.PATCH.matches(method))
+                && path.matches(regexPattern);
 
         return !(isPostUsers || isPutOrPatchUsers);
     }
 
     private String readRequestBody(HttpServletRequest request) throws IOException {
         StringBuilder requestBody = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(request.getInputStream(), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(request.getInputStream(), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 requestBody.append(line);
@@ -86,10 +87,12 @@ public class UserRequestFilter extends OncePerRequestFilter {
                 throw new BadRequestException("[username cannot be blank or contain any whitespace characters]");
             }
         } else if (usernameNode == null || isUsernameInvalid(usernameNode.asText())) {
-            throw new BadRequestException("[username is mandatory and cannot be blank or contain any whitespace characters]");
+            throw new BadRequestException(
+                    "[username is mandatory and cannot be blank or contain any whitespace characters]");
         }
 
-        // Need to check if username is not null as it may be null for PATCH request method
+        // Need to check if username is not null as it may be null for
+        // PATCH request method
         if (usernameNode != null) {
             String username = usernameNode.asText();
             if (username.charAt(0) != AT_SIGN) {

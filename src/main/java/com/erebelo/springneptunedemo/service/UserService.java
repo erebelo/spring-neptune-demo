@@ -4,7 +4,6 @@ import com.erebelo.springneptunedemo.domain.request.FollowRequest;
 import com.erebelo.springneptunedemo.domain.request.UserRequest;
 import com.erebelo.springneptunedemo.domain.response.edge.FollowResponse;
 import com.erebelo.springneptunedemo.domain.response.node.UserResponse;
-
 import java.util.List;
 import java.util.Map;
 

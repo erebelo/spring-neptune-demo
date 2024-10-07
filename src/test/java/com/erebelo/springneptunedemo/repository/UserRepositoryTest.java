@@ -1,8 +1,26 @@
 package com.erebelo.springneptunedemo.repository;
 
+import static org.apache.tinkerpop.gremlin.process.traversal.Merge.onCreate;
+import static org.apache.tinkerpop.gremlin.process.traversal.Merge.onMatch;
+import static org.apache.tinkerpop.gremlin.process.traversal.TextP.regex;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 import com.erebelo.springneptunedemo.domain.graph.node.UserNode;
 import com.erebelo.springneptunedemo.exception.model.ConflictException;
 import com.erebelo.springneptunedemo.repository.impl.UserRepositoryImpl;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CompletionException;
 import org.apache.tinkerpop.gremlin.driver.exception.ResponseException;
 import org.apache.tinkerpop.gremlin.process.traversal.Merge;
 import org.apache.tinkerpop.gremlin.process.traversal.P;
@@ -19,25 +37,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.CompletionException;
-
-import static org.apache.tinkerpop.gremlin.process.traversal.Merge.onCreate;
-import static org.apache.tinkerpop.gremlin.process.traversal.Merge.onMatch;
-import static org.apache.tinkerpop.gremlin.process.traversal.TextP.regex;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class UserRepositoryTest {
@@ -103,7 +102,8 @@ class UserRepositoryTest {
 
         given(traversalSource.mergeV(anyMap())).willReturn(gtVertex);
         given(gtVertex.option(any(Merge.class), anyMap())).willReturn(gtVertex);
-        given(gtVertex.option(any(Merge.class), any(Traversal.class))).willThrow(new CompletionException(responseException));
+        given(gtVertex.option(any(Merge.class), any(Traversal.class)))
+                .willThrow(new CompletionException(responseException));
 
         assertThatExceptionOfType(ConflictException.class)
                 .isThrownBy(() -> repository.insert(new UserNode(null, "@john", "John", null)))
@@ -116,11 +116,13 @@ class UserRepositoryTest {
 
     @Test
     void testInsertThrowsJsonProcessingExceptionAtCompletionException() {
-        ResponseException responseException = new ResponseException(ResponseStatusCode.SERVER_ERROR_FAIL_STEP, "User already exists");
+        ResponseException responseException = new ResponseException(ResponseStatusCode.SERVER_ERROR_FAIL_STEP,
+                "User already exists");
 
         given(traversalSource.mergeV(anyMap())).willReturn(gtVertex);
         given(gtVertex.option(any(Merge.class), anyMap())).willReturn(gtVertex);
-        given(gtVertex.option(any(Merge.class), any(Traversal.class))).willThrow(new CompletionException(responseException));
+        given(gtVertex.option(any(Merge.class), any(Traversal.class)))
+                .willThrow(new CompletionException(responseException));
 
         assertThatExceptionOfType(CompletionException.class)
                 .isThrownBy(() -> repository.insert(new UserNode(null, "@john", "John", null)))
@@ -133,8 +135,8 @@ class UserRepositoryTest {
 
     @Test
     void testInsertThrowsFailException() {
-        FailStep.FailException failException = new FailStep.FailException(mock(Traversal.Admin.class), mock(Traverser.Admin.class),
-                "User already exists", Map.of("key", "value"));
+        FailStep.FailException failException = new FailStep.FailException(mock(Traversal.Admin.class),
+                mock(Traverser.Admin.class), "User already exists", Map.of("key", "value"));
 
         given(traversalSource.mergeV(anyMap())).willReturn(gtVertex);
         given(gtVertex.option(any(Merge.class), anyMap())).willReturn(gtVertex);

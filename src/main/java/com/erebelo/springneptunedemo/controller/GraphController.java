@@ -1,5 +1,13 @@
 package com.erebelo.springneptunedemo.controller;
 
+import static com.erebelo.springneptunedemo.constant.BusinessConstant.GRAPH_DATA_PATH;
+import static com.erebelo.springneptunedemo.constant.BusinessConstant.GRAPH_PATH;
+import static com.erebelo.springneptunedemo.util.ObjectMapperUtil.objectMapper;
+
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -10,15 +18,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import static com.erebelo.springneptunedemo.constant.BusinessConstant.GRAPH_DATA_PATH;
-import static com.erebelo.springneptunedemo.constant.BusinessConstant.GRAPH_PATH;
-import static com.erebelo.springneptunedemo.util.ObjectMapperUtil.objectMapper;
 
 @Slf4j
 @RestController

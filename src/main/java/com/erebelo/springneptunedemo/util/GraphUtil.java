@@ -1,18 +1,17 @@
 package com.erebelo.springneptunedemo.util;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
-import org.springframework.http.HttpMethod;
+import static com.erebelo.springneptunedemo.util.ObjectMapperUtil.objectMapper;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.erebelo.springneptunedemo.util.ObjectMapperUtil.objectMapper;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
+import org.springframework.http.HttpMethod;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class GraphUtil {
@@ -60,8 +59,8 @@ public final class GraphUtil {
         }
     }
 
-    private static void flattenNestedProperties(GraphTraversal<?, ?> gtObject, String prefix, Map<String, Object> nestedProperties,
-            List<String> propertiesToDrop) {
+    private static void flattenNestedProperties(GraphTraversal<?, ?> gtObject, String prefix,
+            Map<String, Object> nestedProperties, List<String> propertiesToDrop) {
         for (Map.Entry<String, Object> entry : nestedProperties.entrySet()) {
             String key = prefix + NESTED_PROPERTY_DELIMITER + entry.getKey();
             Object value = entry.getValue();
@@ -102,7 +101,8 @@ public final class GraphUtil {
                 var nestedKey = String.join(NESTED_PROPERTY_DELIMITER, Arrays.copyOfRange(parts, 1, parts.length));
 
                 // Create nested map if it doesn't exist
-                Map<String, Object> nestedMap = (Map<String, Object>) result.computeIfAbsent(prefix, k -> new HashMap<>());
+                Map<String, Object> nestedMap = (Map<String, Object>) result.computeIfAbsent(prefix,
+                        k -> new HashMap<>());
                 nestedMap.put(nestedKey, value);
             } else {
                 result.put(key, value);

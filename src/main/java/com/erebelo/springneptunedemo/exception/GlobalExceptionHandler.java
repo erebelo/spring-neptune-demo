@@ -5,6 +5,7 @@ import com.erebelo.springneptunedemo.exception.model.ConflictException;
 import com.erebelo.springneptunedemo.exception.model.NotFoundException;
 import com.erebelo.springneptunedemo.exception.model.UnprocessableEntityException;
 import jakarta.validation.ConstraintViolationException;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.http.HttpStatus;
@@ -18,8 +19,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.List;
 
 @Slf4j
 @ControllerAdvice
@@ -51,7 +50,8 @@ public class GlobalExceptionHandler {
 
     @ResponseBody
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
-    public ResponseEntity<ExceptionResponse> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e) {
+    public ResponseEntity<ExceptionResponse> handleHttpMediaTypeNotSupportedException(
+            HttpMediaTypeNotSupportedException e) {
         return parseGeneralException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, e);
     }
 
@@ -63,7 +63,8 @@ public class GlobalExceptionHandler {
 
     @ResponseBody
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ExceptionResponse> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+    public ResponseEntity<ExceptionResponse> handleHttpRequestMethodNotSupportedException(
+            HttpRequestMethodNotSupportedException e) {
         String errorMessage = e.getMessage();
         var supportedHttpMethods = e.getSupportedMethods();
         if (!ObjectUtils.isEmpty(supportedHttpMethods)) {
@@ -79,10 +80,7 @@ public class GlobalExceptionHandler {
         String errorMessage = null;
         List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
         if (!fieldErrors.isEmpty()) {
-            errorMessage = fieldErrors.stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList()
-                    .toString();
+            errorMessage = fieldErrors.stream().map(FieldError::getDefaultMessage).toList().toString();
         }
 
         return parseGeneralException(HttpStatus.BAD_REQUEST, e, errorMessage);
@@ -112,12 +110,14 @@ public class GlobalExceptionHandler {
         return parseGeneralException(httpStatus, e, e.getMessage());
     }
 
-    private ResponseEntity<ExceptionResponse> parseGeneralException(final HttpStatus httpStatus, final Exception e, final String message) {
+    private ResponseEntity<ExceptionResponse> parseGeneralException(final HttpStatus httpStatus, final Exception e,
+            final String message) {
         var errorHttpStatus = ObjectUtils.isEmpty(httpStatus) ? HttpStatus.INTERNAL_SERVER_ERROR : httpStatus;
         var errorMessage = ObjectUtils.isEmpty(message) ? "No defined message" : message;
         var exceptionResponse = new ExceptionResponse(errorHttpStatus, errorMessage, System.currentTimeMillis());
 
-        log.error("Exception stack trace: {}" + System.lineSeparator() + "{}", exceptionResponse, ExceptionUtils.getStackTrace(e));
+        log.error("Exception stack trace: {}" + System.lineSeparator() + "{}", exceptionResponse,
+                ExceptionUtils.getStackTrace(e));
         return ResponseEntity.status(httpStatus).body(exceptionResponse);
     }
 }

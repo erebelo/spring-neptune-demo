@@ -1,5 +1,10 @@
 package com.erebelo.springneptunedemo.controller;
 
+import static com.erebelo.springneptunedemo.constant.BusinessConstant.MERGE_PATCH_MEDIA_TYPE;
+import static com.erebelo.springneptunedemo.constant.BusinessConstant.USERS_FOLLOW_PATH;
+import static com.erebelo.springneptunedemo.constant.BusinessConstant.USERS_PATH;
+import static com.erebelo.springneptunedemo.constant.BusinessConstant.USERS_UNFOLLOW_PATH;
+
 import com.erebelo.springneptunedemo.domain.request.FollowRequest;
 import com.erebelo.springneptunedemo.domain.request.UserRequest;
 import com.erebelo.springneptunedemo.domain.response.edge.FollowResponse;
@@ -7,6 +12,8 @@ import com.erebelo.springneptunedemo.domain.response.node.UserResponse;
 import com.erebelo.springneptunedemo.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -24,14 +31,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.util.List;
-import java.util.Map;
-
-import static com.erebelo.springneptunedemo.constant.BusinessConstant.MERGE_PATCH_MEDIA_TYPE;
-import static com.erebelo.springneptunedemo.constant.BusinessConstant.USERS_FOLLOW_PATH;
-import static com.erebelo.springneptunedemo.constant.BusinessConstant.USERS_PATH;
-import static com.erebelo.springneptunedemo.constant.BusinessConstant.USERS_UNFOLLOW_PATH;
-
 @Slf4j
 @Validated
 @RestController
@@ -42,12 +41,12 @@ public class UserController {
     private final UserService service;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<UserResponse>> findAll(
-            @RequestParam(value = "name", required = false) String name,
+    public ResponseEntity<List<UserResponse>> findAll(@RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "addressState", required = false) String addressState,
             @Min(1) @RequestParam(value = "limit", required = false, defaultValue = "50") Integer limit,
             @Min(1) @RequestParam(value = "page", required = false, defaultValue = "1") Integer page) {
-        log.info("Getting all users with params: [name: {}, addressState: {}, limit: {}, page: {}]", name, addressState, limit, page);
+        log.info("Getting all users with params: [name: {}, addressState: {}, limit: {}, page: {}]", name, addressState,
+                limit, page);
         return ResponseEntity.ok(service.findAll(name, addressState, limit, page));
     }
 
@@ -61,7 +60,8 @@ public class UserController {
     public ResponseEntity<UserResponse> insert(@Valid @RequestBody UserRequest request) {
         log.info("Inserting user: {}", request);
         var response = service.insert(request);
-        var uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.getId()).toUri();
+        var uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.getId())
+                .toUri();
         return ResponseEntity.created(uri).body(response);
     }
 
@@ -72,7 +72,8 @@ public class UserController {
     }
 
     @PatchMapping(value = "/{id}", consumes = MERGE_PATCH_MEDIA_TYPE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserResponse> patch(@PathVariable String id, @Valid @RequestBody Map<String, Object> requestMap) {
+    public ResponseEntity<UserResponse> patch(@PathVariable String id,
+            @Valid @RequestBody Map<String, Object> requestMap) {
         log.info("Patching user by id: {} {}", id, requestMap.toString());
         return ResponseEntity.ok(service.patch(id, requestMap));
     }

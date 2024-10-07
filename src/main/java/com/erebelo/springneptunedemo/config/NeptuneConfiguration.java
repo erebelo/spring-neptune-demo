@@ -1,5 +1,7 @@
 package com.erebelo.springneptunedemo.config;
 
+import static org.apache.tinkerpop.gremlin.process.traversal.AnonymousTraversalSource.traversal;
+
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.neptune.auth.NeptuneNettyHttpSigV4Signer;
 import com.amazonaws.neptune.auth.NeptuneSigV4SignerException;
@@ -12,8 +14,6 @@ import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import static org.apache.tinkerpop.gremlin.process.traversal.AnonymousTraversalSource.traversal;
 
 @Configuration
 public class NeptuneConfiguration {
@@ -35,15 +35,11 @@ public class NeptuneConfiguration {
 
     @Bean
     public Cluster cluster() {
-        return Cluster.build(endpoint)
-                .enableSsl(true)
-                .maxConnectionPoolSize(5)
-                .maxInProcessPerConnection(1)
-                .maxSimultaneousUsagePerConnection(5)
-                .minSimultaneousUsagePerConnection(1)
-                .handshakeInterceptor(r -> {
+        return Cluster.build(endpoint).enableSsl(true).maxConnectionPoolSize(5).maxInProcessPerConnection(1)
+                .maxSimultaneousUsagePerConnection(5).minSimultaneousUsagePerConnection(1).handshakeInterceptor(r -> {
                     try {
-                        var sigV4Signer = new NeptuneNettyHttpSigV4Signer(region, new DefaultAWSCredentialsProviderChain());
+                        var sigV4Signer = new NeptuneNettyHttpSigV4Signer(region,
+                                new DefaultAWSCredentialsProviderChain());
                         sigV4Signer.signRequest(r);
                     } catch (NeptuneSigV4SignerException e) {
                         throw new RuntimeException("Exception occurred while signing the request", e);
@@ -60,15 +56,13 @@ public class NeptuneConfiguration {
 
     @Bean
     public PartitionStrategy partitionStrategy() {
-        return PartitionStrategy.build()
-                .partitionKey(partitionKey)
-                .writePartition(partitionName)
-                .readPartitions(partitionName)
-                .create();
+        return PartitionStrategy.build().partitionKey(partitionKey).writePartition(partitionName)
+                .readPartitions(partitionName).create();
     }
 
     @Bean
-    public GraphTraversalSource graphTraversalSource(RemoteConnection remoteConnection, PartitionStrategy partitionStrategy) {
+    public GraphTraversalSource graphTraversalSource(RemoteConnection remoteConnection,
+            PartitionStrategy partitionStrategy) {
         if (useEmbedded) {
             return traversal().withEmbedded(TinkerGraph.open())/* TODO .withStrategies(partitionStrategy()) */;
         }

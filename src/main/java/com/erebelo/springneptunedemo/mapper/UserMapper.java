@@ -1,5 +1,7 @@
 package com.erebelo.springneptunedemo.mapper;
 
+import static org.mapstruct.ReportingPolicy.WARN;
+
 import com.erebelo.springneptunedemo.domain.graph.edge.FollowEdge;
 import com.erebelo.springneptunedemo.domain.graph.node.UserNode;
 import com.erebelo.springneptunedemo.domain.request.FollowRequest;
@@ -8,13 +10,10 @@ import com.erebelo.springneptunedemo.domain.response.edge.FollowResponse;
 import com.erebelo.springneptunedemo.domain.response.edge.LazyFollowResponse;
 import com.erebelo.springneptunedemo.domain.response.node.LazyUserResponse;
 import com.erebelo.springneptunedemo.domain.response.node.UserResponse;
+import java.util.List;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-
-import java.util.List;
-
-import static org.mapstruct.ReportingPolicy.WARN;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = WARN)
 public interface UserMapper {

@@ -2,10 +2,9 @@ package com.erebelo.springneptunedemo.repository;
 
 import com.erebelo.springneptunedemo.domain.graph.edge.FollowEdge;
 import com.erebelo.springneptunedemo.domain.graph.node.UserNode;
-import org.apache.tinkerpop.gremlin.structure.Direction;
-
 import java.util.List;
 import java.util.Map;
+import org.apache.tinkerpop.gremlin.structure.Direction;
 
 public interface UserRepository {
 
