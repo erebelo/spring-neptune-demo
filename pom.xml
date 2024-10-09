@@ -4,13 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.0</version>
-        <relativePath/>
+        <groupId>com.erebelo</groupId>
+        <artifactId>spring-common-parent</artifactId>
+        <version>1.0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.erebelo</groupId>
     <artifactId>spring-neptune-demo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>spring-neptune-demo</name>
@@ -144,7 +142,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${project.parent.version}</version>
                 <configuration>
                     <mainClass>com.erebelo.springneptunedemo.SpringNeptuneDemoApplication</mainClass>
                     <excludes>
@@ -153,23 +150,6 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
-                </configuration>
-            </plugin>
-            <!--Code formatter plugin-->
-            <plugin>
-                <groupId>com.diffplug.spotless</groupId>
-                <artifactId>spotless-maven-plugin</artifactId>
-                <version>2.43.0</version>
-                <configuration>
-                    <java>
-                        <eclipse/>
-                        <indent>
-                            <spaces>true</spaces>
-                            <spacesPerTab>4</spacesPerTab>
-                        </indent>
-                        <removeUnusedImports/>
-                        <importOrder/>
-                    </java>
                 </configuration>
             </plugin>
         </plugins>

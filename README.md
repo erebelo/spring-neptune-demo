@@ -5,8 +5,13 @@ REST API project developed in Java using Spring Boot 3, Neptune and TinkerGraph 
 ## Requirements
 
 - Java 17
-- Spring Boot 3.3.0
+- Spring Boot 3.3.4
 - Apache Maven 3.8.6
+
+## References
+
+- This project utilizes the [spring-common-parent](https://github.com/erebelo/spring-common-parent) to manage the Spring Boot version and provide common configurations for plugins and formatting
+- Git hooks are set up for code formatting using [Git Hooks Setup](https://github.com/erebelo/spring-neptune-demo/tree/main/git-hooks)
 
 ## Run App
 
