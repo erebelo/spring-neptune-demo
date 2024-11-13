@@ -14,9 +14,9 @@ REST API project developed in Java using Spring Boot 3, Neptune and TinkerGraph 
 
 ## Run App
 
-- Set the following environment variables if running the project for a spring profile other than 'local': 'AWS_REGION', 'AWS_NEPTUNE_ENDPOINT', 'AWS_NEPTUNE_PARTITION_KEY', and 'AWS_NEPTUNE_PARTITION_NAME'
-- Use the application property 'aws.neptune.embedded' to switch between Neptune and TinkerGraph database
-- Run the SpringNeptuneDemoApplication class as Java Application
+- Set the following environment variables if running the project for a spring profile other than `local`: `AWS_REGION`, `AWS_NEPTUNE_ENDPOINT`, `AWS_NEPTUNE_PARTITION_KEY`, and `AWS_NEPTUNE_PARTITION_NAME`.
+- Use the application property `aws.neptune.embedded` to switch between Neptune and TinkerGraph database.
+- Run the `SpringNeptuneDemoApplication` class as Java Application.
 
 ## DB Preview
 
