@@ -32,10 +32,10 @@
 			]
 		},
 		{
-			"name": "User",
+			"name": "Users",
 			"item": [
 				{
-					"name": "GET All Users",
+					"name": "GET Users",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -55,7 +55,7 @@
 					"response": []
 				},
 				{
-					"name": "GET All Users with Params",
+					"name": "GET Users with Params",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -407,6 +407,32 @@
 								"{{user_id_2}}",
 								"unfollow",
 								"{{user_id_1}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Graph",
+			"item": [
+				{
+					"name": "Get Graph Data",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/spring-neptune-demo/graph/data",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"spring-neptune-demo",
+								"graph",
+								"data"
 							]
 						}
 					},
