@@ -161,8 +161,8 @@ public class UserRepositoryImpl implements UserRepository {
     public UserNode update(String id, UserNode node) {
         Vertex vertex = retrieveVertexById(id);
 
-        // TODO check if username is different from previously persisted, and if so,
-        // check if is not in use it since it must be unique
+        // Check if the username is not in use
+        checkUsernameConflict(vertex.id(), node.getUsername());
 
         GraphTraversal<Vertex, Vertex> gtVertex = g.V(vertex.id());
         updateVertexAndEdgeProperties(gtVertex, node, HttpMethod.PUT.name());
@@ -176,8 +176,11 @@ public class UserRepositoryImpl implements UserRepository {
     public UserNode patch(String id, Map<String, Object> requestMap) {
         Vertex vertex = retrieveVertexById(id);
 
-        // TODO check if username is different from previously persisted, and if so,
-        // check if is not in use it since it must be unique
+        // Check if the username is not in use
+        var username = (String) requestMap.get(USERNAME_PROPERTY);
+        if (username != null) {
+            checkUsernameConflict(vertex.id(), username);
+        }
 
         GraphTraversal<Vertex, Vertex> gtVertex = g.V(vertex.id());
         updateVertexAndEdgeProperties(gtVertex, requestMap, HttpMethod.PATCH.name());
@@ -271,6 +274,13 @@ public class UserRepositoryImpl implements UserRepository {
     private Vertex retrieveVertexById(String id) {
         return g.V().hasLabel(USER_VERTEX_LABEL).has(T.id, id).tryNext()
                 .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND_ERROR_MESSAGE + id));
+    }
+
+    private void checkUsernameConflict(Object vertexId, String username) {
+        g.V().hasLabel(USER_VERTEX_LABEL).has(USERNAME_PROPERTY, username).not(__.hasId(vertexId)).tryNext()
+                .ifPresent(vertex -> {
+                    throw new ConflictException(USER_ALREADY_EXISTS_ERROR_MESSAGE + username);
+                });
     }
 
     private boolean edgeExists(Object fromVertexId, Object toVertexId) {

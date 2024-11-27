@@ -19,6 +19,19 @@ import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+/**
+ * This filter modifies the `username` attribute in the request body for
+ * user-related requests by adding the '@' prefix and converting it to lowercase
+ * if the username is valid but does not start with '@'.
+ * <p>
+ * For PATCH requests: If the `username` is present, ensures it is valid (not
+ * blank or containing whitespace).
+ * <p>
+ * For POST/PUT requests: Ensures the `username` is mandatory and valid.
+ * <p>
+ * The filter throws a `BadRequestException` if validation fails for `username`
+ * (either if it's blank, contains whitespace, or is missing).
+ */
 public class UserRequestFilter extends OncePerRequestFilter {
 
     private static final String USER_API_PATH = "/spring-neptune-demo/users";
