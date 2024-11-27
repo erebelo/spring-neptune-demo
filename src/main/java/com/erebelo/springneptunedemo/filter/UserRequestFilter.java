@@ -1,4 +1,4 @@
-package com.erebelo.springneptunedemo.controller.filter;
+package com.erebelo.springneptunedemo.filter;
 
 import static com.erebelo.springneptunedemo.util.ObjectMapperUtil.objectMapper;
 

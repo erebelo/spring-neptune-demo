@@ -10,6 +10,8 @@ import com.erebelo.springneptunedemo.domain.request.UserRequest;
 import com.erebelo.springneptunedemo.domain.response.edge.FollowResponse;
 import com.erebelo.springneptunedemo.domain.response.node.UserResponse;
 import com.erebelo.springneptunedemo.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import java.util.List;
@@ -36,66 +38,77 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RestController
 @RequestMapping(USERS_PATH)
 @RequiredArgsConstructor
+@Tag(name = "Users API")
 public class UserController {
 
     private final UserService service;
 
+    @Operation(summary = "GET Users")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserResponse>> findAll(@RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "addressState", required = false) String addressState,
             @Min(1) @RequestParam(value = "limit", required = false, defaultValue = "50") Integer limit,
             @Min(1) @RequestParam(value = "page", required = false, defaultValue = "1") Integer page) {
-        log.info("Getting all users with params: [name: {}, addressState: {}, limit: {}, page: {}]", name, addressState,
-                limit, page);
+        log.info("GET {}", USERS_PATH);
         return ResponseEntity.ok(service.findAll(name, addressState, limit, page));
     }
 
+    @Operation(summary = "GET User by Id")
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResponse> findById(@PathVariable String id) {
-        log.info("Getting user by id: {}", id);
+        log.info("GET {}/{}", USERS_PATH, id);
         return ResponseEntity.ok(service.findById(id));
     }
 
+    @Operation(summary = "POST Users")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResponse> insert(@Valid @RequestBody UserRequest request) {
-        log.info("Inserting user: {}", request);
+        log.info("POST {}", USERS_PATH);
         var response = service.insert(request);
-        var uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.getId())
-                .toUri();
-        return ResponseEntity.created(uri).body(response);
+
+        return ResponseEntity.created(
+                ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.getId()).toUri())
+                .body(response);
     }
 
+    @Operation(summary = "PUT Users")
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResponse> update(@PathVariable String id, @Valid @RequestBody UserRequest request) {
-        log.info("Updating user by id: {} {}", id, request);
+        log.info("PUT {}/{}", USERS_PATH, id);
         return ResponseEntity.ok(service.update(id, request));
     }
 
+    @Operation(summary = "PATCH Users")
     @PatchMapping(value = "/{id}", consumes = MERGE_PATCH_MEDIA_TYPE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResponse> patch(@PathVariable String id,
             @Valid @RequestBody Map<String, Object> requestMap) {
-        log.info("Patching user by id: {} {}", id, requestMap.toString());
+        log.info("PATCH {}/{}", USERS_PATH, id);
         return ResponseEntity.ok(service.patch(id, requestMap));
     }
 
+    @Operation(summary = "DELETE Users")
     @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> delete(@PathVariable String id) {
-        log.info("Deleting user by id: {}", id);
+        log.info("DELETE {}/{}", USERS_PATH, id);
         service.delete(id);
+
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "POST Follow Users")
     @PostMapping(USERS_FOLLOW_PATH)
     public ResponseEntity<FollowResponse> follow(@PathVariable String fromId, @PathVariable String toId,
             @Valid @RequestBody FollowRequest request) {
-        log.info("Creating FOLLOW edge from user id: {} to user id: {} by object: {}", fromId, toId, request);
+        log.info("POST {}{}", USERS_PATH, USERS_FOLLOW_PATH.replace("{fromId}", fromId).replace("{toId}", toId));
         return ResponseEntity.ok(service.follow(fromId, toId, request));
     }
 
+    @Operation(summary = "POST Unfollow Users")
     @DeleteMapping(USERS_UNFOLLOW_PATH)
     public ResponseEntity<Void> unfollow(@PathVariable String fromId, @PathVariable String toId) {
-        log.info("User id: {} unfollowing user id: {}", fromId, toId);
+        log.info("DELETE {}{}", USERS_PATH, USERS_UNFOLLOW_PATH.replace("{fromId}", fromId).replace("{toId}", toId));
         service.unfollow(fromId, toId);
+
         return ResponseEntity.noContent().build();
     }
 }
