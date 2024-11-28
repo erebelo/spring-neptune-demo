@@ -29,20 +29,20 @@
         <mapstruct.version>1.5.5.Final</mapstruct.version>
     </properties>
 
-    <!-- Transitive dependencies -->
+    <!--Transitive dependencies-->
     <dependencyManagement>
         <dependencies>
-            <dependency> <!-- Fixes gremlin-driver vulnerability for commons-collections versions prior to 4.3 -->
+            <dependency> <!--Fixes gremlin-driver vulnerability for commons-collections versions prior to 4.3-->
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
                 <version>${commons.collections4.version}</version>
             </dependency>
-            <dependency> <!-- Fixes gremlin-driver vulnerability for commons-configuration versions prior to 2.10.1 -->
+            <dependency> <!--Fixes gremlin-driver vulnerability for commons-configuration versions prior to 2.10.1-->
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-configuration2</artifactId>
                 <version>${commons.configuration2.version}</version>
             </dependency>
-            <dependency> <!-- Fixes amazon-neptune-sigv4-signer vulnerability for ion-java versions prior to 1.10.5 -->
+            <dependency> <!--Fixes amazon-neptune-sigv4-signer vulnerability for ion-java versions prior to 1.10.5-->
                 <groupId>com.amazon.ion</groupId>
                 <artifactId>ion-java</artifactId>
                 <version>${ion.java.version}</version>
@@ -81,7 +81,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency> <!-- Memory graph database -->
+        <dependency> <!--Memory graph database-->
             <groupId>org.apache.tinkerpop</groupId>
             <artifactId>tinkergraph-gremlin</artifactId>
             <version>${tinkergraph.gremlin.version}</version>
