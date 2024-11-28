@@ -32,20 +32,17 @@
     <!-- Transitive dependencies -->
     <dependencyManagement>
         <dependencies>
-            <!-- Fixes gremlin-driver vulnerability for commons-collections versions prior to 4.3 -->
-            <dependency>
+            <dependency> <!-- Fixes gremlin-driver vulnerability for commons-collections versions prior to 4.3 -->
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
                 <version>${commons.collections4.version}</version>
             </dependency>
-            <!-- Fixes gremlin-driver vulnerability for commons-configuration versions prior to 2.10.1 -->
-            <dependency>
+            <dependency> <!-- Fixes gremlin-driver vulnerability for commons-configuration versions prior to 2.10.1 -->
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-configuration2</artifactId>
                 <version>${commons.configuration2.version}</version>
             </dependency>
-            <!-- Fixes amazon-neptune-sigv4-signer vulnerability for ion-java versions prior to 1.10.5 -->
-            <dependency>
+            <dependency> <!-- Fixes amazon-neptune-sigv4-signer vulnerability for ion-java versions prior to 1.10.5 -->
                 <groupId>com.amazon.ion</groupId>
                 <artifactId>ion-java</artifactId>
                 <version>${ion.java.version}</version>
@@ -84,13 +81,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- Memory graph database -->
-        <dependency>
+        <dependency> <!-- Memory graph database -->
             <groupId>org.apache.tinkerpop</groupId>
             <artifactId>tinkergraph-gremlin</artifactId>
             <version>${tinkergraph.gremlin.version}</version>
         </dependency>
-        <dependency>
+        <dependency> <!--Swagger-->
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>${springdoc.openapi.version}</version>
