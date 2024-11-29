@@ -305,39 +305,7 @@
 					"response": []
 				},
 				{
-					"name": "POST Follow User",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"status\": \"Active\",\r\n    \"startPeriod\": \"2024-01-01\",\r\n    \"endPeriod\": \"2025-12-31\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:8080/spring-neptune-demo/users/{{user_id_1}}/follow/{{user_id_2}}",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "8080",
-							"path": [
-								"spring-neptune-demo",
-								"users",
-								"{{user_id_1}}",
-								"follow",
-								"{{user_id_2}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "POST Follow User 2",
+					"name": "POST Follow User 1",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -369,12 +337,21 @@
 					"response": []
 				},
 				{
-					"name": "DELETE Unfollow User",
+					"name": "POST Follow User 2",
 					"request": {
-						"method": "DELETE",
+						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\": \"Active\",\r\n    \"startPeriod\": \"2024-01-01\",\r\n    \"endPeriod\": \"2025-12-31\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "http://localhost:8080/spring-neptune-demo/users/{{user_id_1}}/unfollow/{{user_id_2}}",
+							"raw": "http://localhost:8080/spring-neptune-demo/users/{{user_id_1}}/follow/{{user_id_2}}",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -384,7 +361,7 @@
 								"spring-neptune-demo",
 								"users",
 								"{{user_id_1}}",
-								"unfollow",
+								"follow",
 								"{{user_id_2}}"
 							]
 						}
@@ -392,7 +369,7 @@
 					"response": []
 				},
 				{
-					"name": "DELETE Unfollow User 2",
+					"name": "DELETE Unfollow User 1",
 					"request": {
 						"method": "DELETE",
 						"header": [],
@@ -409,6 +386,29 @@
 								"{{user_id_2}}",
 								"unfollow",
 								"{{user_id_1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Unfollow User 2",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/spring-neptune-demo/users/{{user_id_1}}/unfollow/{{user_id_2}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"spring-neptune-demo",
+								"users",
+								"{{user_id_1}}",
+								"unfollow",
+								"{{user_id_2}}"
 							]
 						}
 					},
