@@ -1,10 +1,9 @@
 package com.erebelo.springneptunedemo.constant;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class UserConstant {
+@UtilityClass
+public class UserConstant {
 
     public static final String USER_VERTEX_LABEL = "User";
     public static final String FOLLOW_EDGE_LABEL = "FOLLOW";
@@ -18,7 +17,8 @@ public final class UserConstant {
     public static final String USER_NOT_FOUND_ERROR_MESSAGE = "User not found by id: ";
     public static final String USER_ALREADY_EXISTS_ERROR_MESSAGE = "User already exists by username: ";
     public static final String EXISTING_EDGE_ERROR_MESSAGE = "Existing edge found from user id: %s to user id: %s";
-    public static final String NO_EXISTING_EDGE_ERROR_MESSAGE = "No existing edge found from user id: %s to user id: %s";
+    public static final String NO_EXISTING_EDGE_ERROR_MESSAGE = "No existing edge found from user id: %s to user id: "
+            + "%s";
     public static final String USER_CONSTRAINT_ERROR_MESSAGE = "A constraint error occurred while creating the user";
     public static final String EDGE_CONSTRAINT_ERROR_MESSAGE = "A constraint error occurred while creating the edge";
     public static final String JSON_PROCESSING_ERROR_MESSAGE = "Failed to parse ResponseException message";

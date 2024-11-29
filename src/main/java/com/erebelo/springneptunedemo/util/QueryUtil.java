@@ -1,10 +1,9 @@
 package com.erebelo.springneptunedemo.util;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class QueryUtil {
+@UtilityClass
+public class QueryUtil {
 
     public static boolean isValidProperty(String p) {
         return !(p == null || p.isBlank());

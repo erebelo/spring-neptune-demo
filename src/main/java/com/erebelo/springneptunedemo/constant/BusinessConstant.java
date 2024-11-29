@@ -1,10 +1,9 @@
 package com.erebelo.springneptunedemo.constant;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class BusinessConstant {
+@UtilityClass
+public class BusinessConstant {
 
     public static final String MERGE_PATCH_MEDIA_TYPE = "application/merge-patch+json";
     public static final String HEALTH_CHECK_PATH = "/health-check";

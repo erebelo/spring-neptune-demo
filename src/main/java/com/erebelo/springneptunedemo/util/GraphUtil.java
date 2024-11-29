@@ -8,18 +8,18 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.springframework.http.HttpMethod;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class GraphUtil {
+@UtilityClass
+public class GraphUtil {
 
     private static final String NESTED_PROPERTY_DELIMITER = "_";
 
     private static final String UPDATE_PROPERTIES_ERROR_MESSAGE = "Error updating vertex/edge properties: ";
-    private static final String MAP_OBJECT_ERROR_MESSAGE = "Unexpected error while mapping vertex/edge properties to graph object: ";
+    private static final String MAP_OBJECT_ERROR_MESSAGE = "Unexpected error while mapping vertex/edge properties to "
+            + "graph object: ";
 
     public static <T> void updateVertexAndEdgeProperties(GraphTraversal<?, ?> gtObject, T graphObject, String op) {
         try {
