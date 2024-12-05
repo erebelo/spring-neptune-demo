@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
         response.setFollowers(mapper.edgeListToLazyFollowResponseList(followers, Direction.OUT.name()));
         response.setFollowing(mapper.edgeListToLazyFollowResponseList(following, Direction.IN.name()));
 
-        log.info("User {} successfully retrieved", response);
+        log.info("User successfully retrieved: {}", response);
         return response;
     }
 
