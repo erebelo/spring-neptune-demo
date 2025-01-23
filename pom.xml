@@ -47,11 +47,6 @@
                 <artifactId>ion-java</artifactId>
                 <version>${ion.java.version}</version>
             </dependency>
-            <dependency> <!--Fixes logback-core vulnerability for versions prior to 1.5.13-->
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-core</artifactId>
-                <version>1.5.13</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
