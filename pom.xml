@@ -24,9 +24,9 @@
         <gremlin.driver.version>3.7.2</gremlin.driver.version>
         <sig4.signer.version>2.4.0</sig4.signer.version>
         <tinkergraph.gremlin.version>3.7.2</tinkergraph.gremlin.version>
-        <springdoc.openapi.version>2.6.0</springdoc.openapi.version>
-        <lombok.version>1.18.32</lombok.version>
-        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <springdoc.openapi.version>2.8.3</springdoc.openapi.version>
+        <lombok.version>1.18.36</lombok.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
     </properties>
 
     <!--Transitive dependencies-->
@@ -46,6 +46,11 @@
                 <groupId>com.amazon.ion</groupId>
                 <artifactId>ion-java</artifactId>
                 <version>${ion.java.version}</version>
+            </dependency>
+            <dependency> <!--Fixes logback-core vulnerability for versions prior to 1.5.13-->
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>1.5.13</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
