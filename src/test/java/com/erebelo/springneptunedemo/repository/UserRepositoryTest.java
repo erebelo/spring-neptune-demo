@@ -54,7 +54,7 @@ class UserRepositoryTest {
     private GraphTraversal<Vertex, Map<Object, Object>> gtVertexMap;
 
     @Test
-    void testFindAllSuccessfully() {
+    void testFindAllSuccessful() {
         given(traversalSource.V()).willReturn(gtVertex);
         given(gtVertex.hasLabel(anyString())).willReturn(gtVertex);
         given(gtVertex.has(anyString(), any(P.class))).willReturn(gtVertex);
@@ -77,7 +77,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    void testInsertSuccessfully() {
+    void testInsertSuccessful() {
         given(traversalSource.mergeV(anyMap())).willReturn(gtVertex);
         given(gtVertex.option(any(Merge.class), anyMap())).willReturn(gtVertex);
         given(gtVertex.option(any(Merge.class), any(Traversal.class))).willReturn(gtVertex);
