@@ -36,13 +36,13 @@ public class NeptuneConfiguration {
     @Bean
     public Cluster cluster() {
         return Cluster.build(endpoint).enableSsl(true).maxConnectionPoolSize(5).maxInProcessPerConnection(1)
-                .maxSimultaneousUsagePerConnection(5).minSimultaneousUsagePerConnection(1).handshakeInterceptor(r -> {
+                .maxSimultaneousUsagePerConnection(5).minSimultaneousUsagePerConnection(1).requestInterceptor(r -> {
                     try {
-                        var sigV4Signer = new NeptuneNettyHttpSigV4Signer(region,
+                        NeptuneNettyHttpSigV4Signer sigV4Signer = new NeptuneNettyHttpSigV4Signer(region,
                                 new DefaultAWSCredentialsProviderChain());
                         sigV4Signer.signRequest(r);
                     } catch (NeptuneSigV4SignerException e) {
-                        throw new RuntimeException("Exception occurred while signing the request", e);
+                        throw new IllegalStateException("Exception occurred while signing the request", e);
 
                     }
                     return r;

@@ -10,7 +10,7 @@ public class BusinessConstant {
     public static final String GRAPH_PATH = "/graph";
     public static final String GRAPH_DATA_PATH = "/data";
     public static final String USERS_PATH = "/users";
-    public static final String USERS_FOLLOW_PATH = "/{fromId}/follow/{toId}";
-    public static final String USERS_UNFOLLOW_PATH = "/{fromId}/unfollow/{toId}";
+    public static final String USERS_FOLLOW_PATH = "/follow";
+    public static final String USERS_UNFOLLOW_PATH = "/unfollow";
 
 }

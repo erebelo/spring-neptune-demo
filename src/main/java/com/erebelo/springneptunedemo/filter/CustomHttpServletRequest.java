@@ -41,7 +41,8 @@ public class CustomHttpServletRequest extends HttpServletRequestWrapper {
 
             @Override
             public void setReadListener(ReadListener readListener) {
-
+                // This method is intentionally left empty because this custom implementation
+                // does not support asynchronous/non-blocking I/O.
             }
 
             private final InputStream inputStream = new ByteArrayInputStream(body.getBytes(StandardCharsets.UTF_8));

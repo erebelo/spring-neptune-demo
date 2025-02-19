@@ -66,7 +66,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ExceptionResponse> handleHttpRequestMethodNotSupportedException(
             HttpRequestMethodNotSupportedException e) {
         String errorMessage = e.getMessage();
-        var supportedHttpMethods = e.getSupportedMethods();
+        String[] supportedHttpMethods = e.getSupportedMethods();
         if (!ObjectUtils.isEmpty(supportedHttpMethods)) {
             errorMessage += ". Supported methods: " + String.join(", ", supportedHttpMethods);
         }
@@ -112,9 +112,10 @@ public class GlobalExceptionHandler {
 
     private ResponseEntity<ExceptionResponse> parseGeneralException(final HttpStatus httpStatus, final Exception e,
             final String message) {
-        var errorHttpStatus = ObjectUtils.isEmpty(httpStatus) ? HttpStatus.INTERNAL_SERVER_ERROR : httpStatus;
-        var errorMessage = ObjectUtils.isEmpty(message) ? "No defined message" : message;
-        var exceptionResponse = new ExceptionResponse(errorHttpStatus, errorMessage, System.currentTimeMillis());
+        HttpStatus errorHttpStatus = ObjectUtils.isEmpty(httpStatus) ? HttpStatus.INTERNAL_SERVER_ERROR : httpStatus;
+        String errorMessage = ObjectUtils.isEmpty(message) ? "No defined message" : message;
+        ExceptionResponse exceptionResponse = new ExceptionResponse(errorHttpStatus, errorMessage,
+                System.currentTimeMillis());
 
         log.error("Exception stack trace: {}" + System.lineSeparator() + "{}", exceptionResponse,
                 ExceptionUtils.getStackTrace(e));

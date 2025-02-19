@@ -21,6 +21,7 @@ public class GraphUtil {
     private static final String MAP_OBJECT_ERROR_MESSAGE = "Unexpected error while mapping vertex/edge properties to "
             + "graph object: ";
 
+    @SuppressWarnings("unchecked")
     public static <T> void updateVertexAndEdgeProperties(GraphTraversal<?, ?> gtObject, T graphObject, String op) {
         try {
             // List to collect properties whose value is null to be dropped
@@ -85,6 +86,7 @@ public class GraphUtil {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static Map<String, Object> parseVertexProperties(Map<Object, Object> propertiesMap) {
         Map<String, Object> result = new HashMap<>();
 
@@ -97,8 +99,8 @@ public class GraphUtil {
             String[] parts = key.split(NESTED_PROPERTY_DELIMITER);
             if (parts.length > 1) {
                 // Handle nested property
-                var prefix = parts[0];
-                var nestedKey = String.join(NESTED_PROPERTY_DELIMITER, Arrays.copyOfRange(parts, 1, parts.length));
+                String prefix = parts[0];
+                String nestedKey = String.join(NESTED_PROPERTY_DELIMITER, Arrays.copyOfRange(parts, 1, parts.length));
 
                 // Create nested map if it doesn't exist
                 Map<String, Object> nestedMap = (Map<String, Object>) result.computeIfAbsent(prefix,

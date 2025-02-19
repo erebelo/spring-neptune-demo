@@ -4,7 +4,9 @@ import static org.apache.tinkerpop.gremlin.process.traversal.Merge.onCreate;
 import static org.apache.tinkerpop.gremlin.process.traversal.Merge.onMatch;
 import static org.apache.tinkerpop.gremlin.process.traversal.TextP.regex;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -19,6 +21,7 @@ import com.erebelo.springneptunedemo.exception.model.ConflictException;
 import com.erebelo.springneptunedemo.repository.impl.UserRepositoryImpl;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletionException;
 import org.apache.tinkerpop.gremlin.driver.exception.ResponseException;
@@ -34,6 +37,7 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.util.message.ResponseStatusCode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -62,10 +66,9 @@ class UserRepositoryTest {
         given(gtVertex.elementMap()).willReturn(gtVertexMap);
         given(gtVertexMap.toList()).willReturn(Collections.singletonList(new HashMap<>()));
 
-        var result = repository.findAll("John", "CA", 10, 1);
+        List<UserNode> response = repository.findAll("John", "CA", 10, 1);
 
-        assertThat(result).isNotNull();
-        assertThat(result).hasSize(1);
+        assertThat(response).isNotNull().hasSize(1);
 
         verify(traversalSource).V();
         verify(gtVertex).hasLabel("User");
@@ -80,17 +83,18 @@ class UserRepositoryTest {
     void testInsertSuccessful() {
         given(traversalSource.mergeV(anyMap())).willReturn(gtVertex);
         given(gtVertex.option(any(Merge.class), anyMap())).willReturn(gtVertex);
-        given(gtVertex.option(any(Merge.class), any(Traversal.class))).willReturn(gtVertex);
+        given(gtVertex.option(any(Merge.class), ArgumentMatchers.<Traversal<Object, Object>>any()))
+                .willReturn(gtVertex);
         given(gtVertex.elementMap()).willReturn(gtVertexMap);
         given(gtVertexMap.next()).willReturn(new HashMap<>());
 
-        var result = repository.insert(new UserNode(null, "@john", "John", null));
+        UserNode response = repository.insert(new UserNode(null, "@john", "John", null));
 
-        assertThat(result).isNotNull();
+        assertThat(response).isNotNull();
 
         verify(traversalSource).mergeV(Map.of(T.label, "User", "username", "@john"));
         verify(gtVertex).option(eq(onCreate), anyMap());
-        verify(gtVertex).option(eq(onMatch), any(Traversal.class));
+        verify(gtVertex).option(eq(onMatch), ArgumentMatchers.<Traversal<Object, Object>>any());
         verify(gtVertex).elementMap();
         verify(gtVertexMap).next();
     }
@@ -102,16 +106,17 @@ class UserRepositoryTest {
 
         given(traversalSource.mergeV(anyMap())).willReturn(gtVertex);
         given(gtVertex.option(any(Merge.class), anyMap())).willReturn(gtVertex);
-        given(gtVertex.option(any(Merge.class), any(Traversal.class)))
+        given(gtVertex.option(any(Merge.class), ArgumentMatchers.<Traversal<Object, Object>>any()))
                 .willThrow(new CompletionException(responseException));
+        UserNode userNode = new UserNode(null, "@john", "John", null);
 
-        assertThatExceptionOfType(ConflictException.class)
-                .isThrownBy(() -> repository.insert(new UserNode(null, "@john", "John", null)))
-                .withMessage("User already exists");
+        ConflictException exception = assertThrows(ConflictException.class, () -> repository.insert(userNode));
+
+        assertEquals("User already exists", exception.getMessage());
 
         verify(traversalSource).mergeV(Map.of(T.label, "User", "username", "@john"));
         verify(gtVertex).option(eq(onCreate), anyMap());
-        verify(gtVertex).option(eq(onMatch), any(Traversal.class));
+        verify(gtVertex).option(eq(onMatch), ArgumentMatchers.<Traversal<Object, Object>>any());
     }
 
     @Test
@@ -121,16 +126,17 @@ class UserRepositoryTest {
 
         given(traversalSource.mergeV(anyMap())).willReturn(gtVertex);
         given(gtVertex.option(any(Merge.class), anyMap())).willReturn(gtVertex);
-        given(gtVertex.option(any(Merge.class), any(Traversal.class)))
+        given(gtVertex.option(any(Merge.class), ArgumentMatchers.<Traversal<Object, Object>>any()))
                 .willThrow(new CompletionException(responseException));
+        UserNode userNode = new UserNode(null, "@john", "John", null);
 
-        assertThatExceptionOfType(CompletionException.class)
-                .isThrownBy(() -> repository.insert(new UserNode(null, "@john", "John", null)))
-                .withMessageContaining("User already exists");
+        CompletionException exception = assertThrows(CompletionException.class, () -> repository.insert(userNode));
+
+        assertTrue(exception.getMessage().contains("User already exists"));
 
         verify(traversalSource).mergeV(Map.of(T.label, "User", "username", "@john"));
         verify(gtVertex).option(eq(onCreate), anyMap());
-        verify(gtVertex).option(eq(onMatch), any(Traversal.class));
+        verify(gtVertex).option(eq(onMatch), ArgumentMatchers.<Traversal<Object, Object>>any());
     }
 
     @Test
@@ -140,14 +146,16 @@ class UserRepositoryTest {
 
         given(traversalSource.mergeV(anyMap())).willReturn(gtVertex);
         given(gtVertex.option(any(Merge.class), anyMap())).willReturn(gtVertex);
-        given(gtVertex.option(any(Merge.class), any(Traversal.class))).willThrow(failException);
+        given(gtVertex.option(any(Merge.class), ArgumentMatchers.<Traversal<Object, Object>>any()))
+                .willThrow(failException);
+        UserNode userNode = new UserNode(null, "@john", "John", null);
 
-        assertThatExceptionOfType(ConflictException.class)
-                .isThrownBy(() -> repository.insert(new UserNode(null, "@john", "John", null)))
-                .withMessage("User already exists");
+        ConflictException exception = assertThrows(ConflictException.class, () -> repository.insert(userNode));
+
+        assertEquals("User already exists", exception.getMessage());
 
         verify(traversalSource).mergeV(Map.of(T.label, "User", "username", "@john"));
         verify(gtVertex).option(eq(onCreate), anyMap());
-        verify(gtVertex).option(eq(onMatch), any(Traversal.class));
+        verify(gtVertex).option(eq(onMatch), ArgumentMatchers.<Traversal<Object, Object>>any());
     }
 }

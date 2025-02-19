@@ -64,7 +64,7 @@ public class UserController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserResponse> insert(@Valid @RequestBody UserRequest request) {
         log.info("POST {}", USERS_PATH);
-        var response = service.insert(request);
+        UserResponse response = service.insert(request);
 
         return ResponseEntity.created(
                 ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.getId()).toUri())
@@ -96,17 +96,17 @@ public class UserController {
     }
 
     @Operation(summary = "POST Follow Users")
-    @PostMapping(USERS_FOLLOW_PATH)
+    @PostMapping("/{fromId}" + USERS_FOLLOW_PATH + "/{toId}")
     public ResponseEntity<FollowResponse> follow(@PathVariable String fromId, @PathVariable String toId,
             @Valid @RequestBody FollowRequest request) {
-        log.info("POST {}{}", USERS_PATH, USERS_FOLLOW_PATH.replace("{fromId}", fromId).replace("{toId}", toId));
+        log.info("POST {}{}", USERS_PATH, "/" + fromId + USERS_FOLLOW_PATH + "/" + toId);
         return ResponseEntity.ok(service.follow(fromId, toId, request));
     }
 
     @Operation(summary = "POST Unfollow Users")
-    @DeleteMapping(USERS_UNFOLLOW_PATH)
+    @DeleteMapping("/{fromId}" + USERS_UNFOLLOW_PATH + "/{toId}")
     public ResponseEntity<Void> unfollow(@PathVariable String fromId, @PathVariable String toId) {
-        log.info("DELETE {}{}", USERS_PATH, USERS_UNFOLLOW_PATH.replace("{fromId}", fromId).replace("{toId}", toId));
+        log.info("DELETE {}{}", USERS_PATH, "/" + fromId + USERS_UNFOLLOW_PATH + "/" + toId);
         service.unfollow(fromId, toId);
 
         return ResponseEntity.noContent().build();

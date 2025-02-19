@@ -3,6 +3,7 @@ package com.erebelo.springneptunedemo.util;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import java.text.SimpleDateFormat;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,7 @@ class ObjectMapperUtilTest {
 
     @Test
     void testObjectMapperConfiguration() {
-        var objectMapper = ObjectMapperUtil.objectMapper;
+        ObjectMapper objectMapper = ObjectMapperUtil.objectMapper;
 
         assertThat(objectMapper.getRegisteredModuleIds()).contains(JAVA_TIME_MODULE);
         assertThat(objectMapper.getSerializationConfig().getDefaultPropertyInclusion().getValueInclusion())
@@ -29,8 +30,8 @@ class ObjectMapperUtilTest {
 
     @Test
     void testObjectMapperSingleton() {
-        var objectMapper1 = ObjectMapperUtil.objectMapper;
-        var objectMapper2 = ObjectMapperUtil.objectMapper;
+        ObjectMapper objectMapper1 = ObjectMapperUtil.objectMapper;
+        ObjectMapper objectMapper2 = ObjectMapperUtil.objectMapper;
 
         assertThat(objectMapper1).isSameAs(objectMapper2);
     }

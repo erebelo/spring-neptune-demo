@@ -177,7 +177,7 @@ public class UserRepositoryImpl implements UserRepository {
         Vertex vertex = retrieveVertexById(id);
 
         // Check if the username is not in use
-        var username = (String) requestMap.get(USERNAME_PROPERTY);
+        String username = (String) requestMap.get(USERNAME_PROPERTY);
         if (username != null) {
             checkUsernameConflict(vertex.id(), username);
         }

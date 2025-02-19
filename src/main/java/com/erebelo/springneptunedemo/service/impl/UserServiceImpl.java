@@ -2,7 +2,9 @@ package com.erebelo.springneptunedemo.service.impl;
 
 import static com.erebelo.springneptunedemo.util.ObjectMapperUtil.objectMapper;
 
+import com.erebelo.springneptunedemo.domain.graph.edge.FollowEdge;
 import com.erebelo.springneptunedemo.domain.graph.node.UserAddress;
+import com.erebelo.springneptunedemo.domain.graph.node.UserNode;
 import com.erebelo.springneptunedemo.domain.request.FollowRequest;
 import com.erebelo.springneptunedemo.domain.request.UserAddressRequest;
 import com.erebelo.springneptunedemo.domain.request.UserRequest;
@@ -37,7 +39,7 @@ public class UserServiceImpl implements UserService {
     public List<UserResponse> findAll(String name, String addressState, Integer limit, Integer page) {
         log.info("Fetching all users by name: {}, addressState: {}, limit: {}, and page: {}", name, addressState, limit,
                 page);
-        var nodeList = repository.findAll(name, addressState, limit, page);
+        List<UserNode> nodeList = repository.findAll(name, addressState, limit, page);
 
         log.info("Users successfully retrieved: {}", nodeList);
         return mapper.nodeListToResponseList(nodeList);
@@ -47,11 +49,11 @@ public class UserServiceImpl implements UserService {
     public UserResponse findById(String id) {
         log.info("Fetching user by id: {}", id);
 
-        var node = repository.findById(id);
-        var followers = repository.findEdgesByUserIdAndDirection(id, Direction.IN);
-        var following = repository.findEdgesByUserIdAndDirection(id, Direction.OUT);
+        UserNode node = repository.findById(id);
+        List<FollowEdge> followers = repository.findEdgesByUserIdAndDirection(id, Direction.IN);
+        List<FollowEdge> following = repository.findEdgesByUserIdAndDirection(id, Direction.OUT);
 
-        var response = mapper.nodeToResponse(node);
+        UserResponse response = mapper.nodeToResponse(node);
         response.setFollowers(mapper.edgeListToLazyFollowResponseList(followers, Direction.OUT.name()));
         response.setFollowing(mapper.edgeListToLazyFollowResponseList(following, Direction.IN.name()));
 
@@ -63,7 +65,7 @@ public class UserServiceImpl implements UserService {
     public UserResponse insert(UserRequest request) {
         log.info("Creating user");
 
-        var node = mapper.requestToNode(request);
+        UserNode node = mapper.requestToNode(request);
         node = repository.insert(node);
 
         log.info("User created successfully: {}", node);
@@ -80,7 +82,7 @@ public class UserServiceImpl implements UserService {
             request.setAddress(new UserAddressRequest());
         }
 
-        var node = mapper.requestToNode(request);
+        UserNode node = mapper.requestToNode(request);
         node = repository.update(id, node);
 
         log.info("User updated successfully: {}", node);
@@ -99,7 +101,7 @@ public class UserServiceImpl implements UserService {
             requestMap.put(ADDRESS_PROPERTY, objectMapper.convertValue(new UserAddress(), Map.class));
         }
 
-        var node = repository.patch(id, requestMap);
+        UserNode node = repository.patch(id, requestMap);
 
         log.info("User updated successfully: {}", node);
         return mapper.nodeToResponse(node);
@@ -117,7 +119,7 @@ public class UserServiceImpl implements UserService {
     public FollowResponse follow(String fromId, String toId, FollowRequest request) {
         log.info("User id: {} following user id: {}", fromId, toId);
 
-        var edge = mapper.requestToEdge(request);
+        FollowEdge edge = mapper.requestToEdge(request);
         edge = repository.createEdge(fromId, toId, edge);
 
         log.info("User id: {} followed successfully user id: {}", fromId, toId);
