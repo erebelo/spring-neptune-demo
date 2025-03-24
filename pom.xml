@@ -6,13 +6,21 @@
     <parent>
         <groupId>com.erebelo</groupId>
         <artifactId>spring-common-parent</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
 
     <artifactId>spring-neptune-demo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>spring-neptune-demo</name>
     <description>Java project using Spring Boot, Neptune and TinkerGraph database</description>
+
+
+    <repositories>
+        <repository>
+            <id>github-spring-common-parent</id>
+            <url>https://maven.pkg.github.com/erebelo/spring-common-parent</url>
+        </repository>
+    </repositories>
 
     <properties>
         <java.version>17</java.version>
